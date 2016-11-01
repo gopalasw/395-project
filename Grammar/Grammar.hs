@@ -11,7 +11,7 @@ data Player = Player { cardsInHand :: [Card],
                        cardsLeft :: [Card], 
                        cardsOnBoard :: [Card],
                        usedCards :: [Card],
-                       score :: Int,
+                       score :: [Int],
                        leader :: Card,
                        country :: Country }
                      deriving (Show)
