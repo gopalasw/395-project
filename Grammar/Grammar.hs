@@ -3,7 +3,7 @@ module Grammar.Grammar where
 data Board = Board { a :: Player,
                      b :: Player,
                      weather :: [Card],
-                     roundScore :: (Int, Int)
+                     roundScore :: (Int, Int),
                      isATurn :: Bool }
                    deriving (Show)
 
@@ -21,11 +21,11 @@ data Card =
   | CUnit Name Row Unit
   | CLeader Leader
   | CPass
-  deriving (Show)
+  deriving (Show, Eq)
 
 data Unit = Unit { ability :: Ability,
                    damage :: Int }
-                 deriving (Show)
+                 deriving (Show, Eq)
 
 data Leader =
     SteelForged  -- Scorch Siege if enemies Siege strength is 10 or higher 
@@ -36,11 +36,12 @@ data Leader =
   | WhiteFlame -- Cancel opp Leader ability
   | EmperorNilfgaard -- Look at 3 random cards of opp hand
   | ImperialMajesty -- Pick a rain card from deck and play immediately
-  deriving (Show)
+  deriving (Show, Eq)
 
 data Country =
     Nothern -- Draw extra card from deck after you win a round
   | Nilfgaard -- Win the game if it is a draw
+  deriving (Show, Eq)
 
 data Ability =
     AMoraleBoost -- adds +1 to units in a single row, except for this card.
@@ -53,6 +54,8 @@ data Ability =
   | AMuster Name -- play all cards with same name from hand + deck right away
   | ADecoy -- take card on board back into hand, replace it with the decoy
   | AHorn -- choose a row, double strength of all cards in that row
+  deriving (Show, Eq)
+
 
 type Name = String -- Name of cards/countries/leaders
 type Row = Int -- Rows that the card can be played on/affects
