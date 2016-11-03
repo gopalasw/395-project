@@ -13,7 +13,7 @@ prettyPrintBoard board = "Board: \n" ++ "Player A\n Score:" ++ (show playerAScor
 
 prettyPrintCard :: Card -> String
 prettyPrintCard (CWeather n rows) = "(" ++ n ++ " affects " ++ (prettyPrintRows rows) ++ ")"
-prettyPrintCard (CUnit n row _) = "(" ++ n ++ ", " ++ (show row) ++ ")"
+prettyPrintCard (CUnit n row _ _) = "(" ++ n ++ ", " ++ (show row) ++ ")"
 prettyPrintCard (CLeader l) = prettyPrintLeader l
 prettyPrintCard (CPass) = "Passed"
 

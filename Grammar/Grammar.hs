@@ -40,16 +40,17 @@ data Country =
   deriving (Show, Eq)
 
 data Ability =
-    AMoraleBoost -- adds +1 to units in a single row, except for this card.
-  | AScorch Row -- if opp cc units row >= 10, destroy strongest unit in row
-  | ASpy -- puts card in opp board, draw 2 cards
-  | AHero -- immune to abilities/special effects
-  | ATightBond Name -- if beside same name card, strength of same name cards x2
-  | AMedic -- play unit from used pile
-  | AAgile -- Can be played in range combat or close combat
-  | AMuster Name -- play all cards with same name from hand + deck right away
-  | ADecoy -- take card on board back into hand, replace it with the decoy
-  | AHorn -- choose a row, double strength of all cards in that row
+    MoraleBoost -- adds +1 to units in a single row, except for this card.
+  | Scorch Row -- if opp cc units row >= 10, destroy strongest unit in row
+  | Spy -- puts card in opp board, draw 2 cards
+  | Hero -- immune to abilities/special effects
+  | Bond Name -- if beside same name card, strength of same name cards x2
+  | Medic -- play unit from used pile
+  | Agile -- Can be played in range combat or close combat
+  | Muster Name -- play all cards with same name from hand + deck right away
+  | Decoy -- take card on board back into hand, replace it with the decoy
+  | Horn -- choose a row, double strength of all cards in that row
+  | None -- No ability
   deriving (Show, Eq)
 
 
