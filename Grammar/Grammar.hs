@@ -18,14 +18,10 @@ data Player = Player { cardsInHand :: [Card],
 
 data Card =
     CWeather Name [Row]
-  | CUnit Name Row Unit
+  | CUnit Name Row Ability Int
   | CLeader Leader
   | CPass
   deriving (Show, Eq)
-
-data Unit = Unit { ability :: Ability,
-                   damage :: Int }
-                 deriving (Show, Eq)
 
 data Leader =
     SteelForged  -- Scorch Siege if enemies Siege strength is 10 or higher 
