@@ -44,12 +44,12 @@ data Ability =
   | Scorch Row -- if opp cc units row >= 10, destroy strongest unit in row
   | Spy -- puts card in opp board, draw 2 cards
   | Hero -- immune to abilities/special effects
-  | Bond Name -- if beside same name card, strength of same name cards x2
+  | Bond -- if beside same name card, strength of same name cards x2
   | Medic -- play unit from used pile
   | Agile -- Can be played in range combat or close combat
   | Muster Name -- play all cards with same name from hand + deck right away
   | Decoy -- take card on board back into hand, replace it with the decoy
-  | Horn -- choose a row, double strength of all cards in that row
+  | Horn Row -- choose a row, double strength of all cards in that row
   | None -- No ability
   deriving (Show, Eq)
 

@@ -1,31 +1,31 @@
 module Game.AbilityEffects where
 
 import Grammar.Grammar
-  | CUnit Name Row Ability Int
+import Grammar.PrettyPrint
+import Game.Cards
 
-abilityDamage :: Board -> Card -> Int
-abilityDamage board card = ability card
+cardsDamage :: Board -> Board
+cardsDamage board = board { roundScore = ((fst $ roundScore board) + aDamage, (snd $ roundScore board) + bDamage) }
   where
-    cards = if (isATurn board) then (cardsOnBoard (a board)) else (cardsOnBoard (b board))
-    ability (CUnit _ row MoraleBoost _) = length cards
-    ability (CUnit _ row (Bond name) damage) =
-      2 * damage * (sameName name cards) -- dont think this calculation is right..
-    -- ability (CUnit _ _ Horn _) = 
+    aCards = (cardsOnBoard (a board))
+    bCards = (cardsOnBoard (b board))
+    aDamage = sum $ map (abilityDamage board aCards) aCards
+    bDamage = sum $ map (abilityDamage board bCards) bCards
 
-sameName :: Name -> [Card] -> Int
+abilityDamage :: Board -> [Card] -> Card -> Int
+abilityDamage board cards card = ability card
+  where
+    ability (CUnit _ row MoraleBoost _) = length (filter (cardInRow row) cards) - 1
+    ability (c@(CUnit _ row Bond damage)) =
+      damage * ((sameName c cards) - 1) -- dont think this calculation is right..
+    ability (CUnit _ _ Horn r _) = filter (cardInRow r) cards
+    ability _ = 0
+
+sameName :: Card -> [Card] -> Int
 sameName _ [] = 0
-sameName name ((CUnit n _ _ _):cs) = count + (sameName name cs)
-  where count = if (name == n) then 1 else 0
-sameName _ _ = 0
+sameName card (c:cs) = count + (sameName card cs)
+  where count = if (c == card) then 1 else 0
 
-
-  | Hero -- immune to abilities/special effects
-  | Bond Name -- if beside same name card, strength of same name cards x2
-  | Medic -- play unit from used pile
-  | Agile -- Can be played in range combat or close combat
-  | Muster Name -- play all cards with same name from hand + deck right away
-  | Decoy -- take card on board back into hand, replace it with the decoy
-  | Horn -- choose a row, double strength of all cards in that row
-  | None -- No ability
-  
-
+cardInRow :: Row -> Card -> Bool
+cardInRow r (CUnit _ row _ _) = r == row
+cardInRow r _ = False
