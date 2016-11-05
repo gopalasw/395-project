@@ -30,7 +30,6 @@ genPlayer (drew, left) c l =
     leader       = l,
     country      = c }
 
-type cardsToDraw = Int
 
 drawCards :: Country -> Int -> [Card] -> Maybe ([Card], [Card])
 drawCards _ _ [] = Nothing
@@ -46,9 +45,8 @@ drawCards c i ls =
     tuple = drawCard ls 
 
 drawCard :: [Card] -> (Maybe Card, [Card])
-drawCard cards = do 
-  ran :: Int  <- randomRIO (0, length cards) :: IO Int
-  (getCard ran cards, removeCard ran cards)
+drawCard = undefined
+
 
 getCard :: Int -> [Card] -> Maybe Card
 getCard _ []     = Nothing
@@ -60,8 +58,13 @@ removeCard _ []     = []
 removeCard 0 (x:xs) = xs
 removeCard i (x:xs) = x : (removeCard (i - 1) xs)
 
-swapCard :: Board -> Board 
-swapCard = undefined
+
+-- In the begining of a game
+swapOneCard :: Player -> Card -> Player 
+swapOneCard p c = 
+  case drawCard (p cardsLeft) of
+    (Just c', ls) -> p { cardsInHand = c' : (delete c (p cardsInHand)),
+                         cardsLeft   = c  : ls }
 
 -- player chooses card to play or pass, board updates
 playTurn :: Board -> Board
