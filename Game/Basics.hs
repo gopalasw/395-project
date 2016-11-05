@@ -86,6 +86,10 @@ playTurn currentB
   | isATurn currentB = currentB { a = (playCard (a currentB)) }
   | otherwise        = currentB { b = (playCard (b currentB)) }
 
+
+
+-- !!!!! This function does not work !!!!! --
+-- play a card, but the problem is we cannot get Card out from IO Monad
 playCard :: Player -> Player
 playCard p = 
   p { cardsOnBoard = cardPlayed : (cardsOnBoard p),
@@ -96,10 +100,7 @@ playCard p =
       res <- getAction (cardsInHand p)
       return res
 
-peelOff :: IO Card -> Card
-peelOff input = do
-  res <- input
-  res
+
 -- Takes input from the terminal
 getAction :: [Card] -> IO Card
 getAction cs = do 
@@ -120,6 +121,21 @@ getName (CUnit n _ _ _) = n
 getName (CLeader l)     = show l
 getName CPass           = "Pass"
   
+
+
+--        Previous board, isATurn
+roundStart :: Board -> Bool -> Board 
+roundStart b@(Board p1 p2 _ _ _) bool =
+  b { a = p1 { usedCards = (cardsOnBoard p1) ++ (usedCards p1),
+               cardsOnBoard = []},
+      b = p2 { usedCards = (cardsOnBoard p2) ++ (usedCards p2),
+               cardsOnBoard = []},
+      weather = [],
+      roundScore   = (0, 0),
+      isATurn   = bool}
+
+
+
 -- evaluates current state of board, updates round scores
 evaluateTurn :: Board -> Board
 evaluateTurn currentB@(Board p1 p2 _ _ pTurn) =
@@ -141,16 +157,6 @@ evaluateRound b@(Board p1 p2 _ (s1, s2) _)
                    b = p2 { score = 0 : (score p2)}}
   | s1 == s2 = b { a = p1 { score = 0 : (score p1)},
                    b = p2 { score = 0 : (score p2)}} 
---        Previous board, isATurn
-roundStart :: Board -> Bool -> Board 
-roundStart b@(Board p1 p2 _ _ _) bool =
-  b { a = p1 { usedCards = (cardsOnBoard p1) ++ (usedCards p1),
-               cardsOnBoard = []},
-      b = p2 { usedCards = (cardsOnBoard p2) ++ (usedCards p2),
-               cardsOnBoard = []},
-      weather = [],
-      roundScore   = (0, 0),
-      isATurn   = bool}
 
 getTotalDamage :: [Card] -> Int 
 getTotalDamage ls = 
