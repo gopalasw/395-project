@@ -12,12 +12,18 @@ main = undefined
 init :: (Country, Country) -> (Card, Card) -> Board 
 init (c1, c2) (l1, l2) = Board
   {
-    a          = genPlayer (drawCards c1 10 allCards) c1 l1,    
-    b          = genPlayer (drawCards c2) c2 l2,
+    a          = genPlayer (getCards c1) c1 l1,    
+    b          = genPlayer (getCards c2) c2 l2,
     weather    = [],
     roundScore = (0, 0),
     isATurn    = True
   }
+  where
+    getCards :: Country -> ([Card], [Card])
+    getCards c = 
+      case drawCards c 10 allCards of
+        Just res -> res
+        Nothing  -> ([], [])
 
 genPlayer :: ([Card], [Card]) -> Country -> Card -> Player
 genPlayer (drew, left) c l =
@@ -62,8 +68,8 @@ removeCard i (x:xs) = x : (removeCard (i - 1) xs)
 -- In the begining of a game
 swapOneCard :: Player -> Card -> Player 
 swapOneCard p c = 
-  case drawCard (p cardsLeft) of
-    (Just c', ls) -> p { cardsInHand = c' : (delete c (p cardsInHand)),
+  case drawCard (cardsLeft p) of
+    (Just c', ls) -> p { cardsInHand = c' : (delete c (cardsInHand p)),
                          cardsLeft   = c  : ls }
 
 -- player chooses card to play or pass, board updates
@@ -73,11 +79,11 @@ playTurn currentB
   | otherwise        = currentB { b = (playCard (b currentB)) }
 
 playCard :: Player -> Player
-playCard = undefined
+playCard = undefined 
 
 -- evaluates current state of board, updates round scores
-evaluate :: Board -> Board
-evaluate currentB@(Board p1 p2 _ _ pTurn) =
+evaluateTurn :: Board -> Board
+evaluateTurn currentB@(Board p1 p2 _ _ pTurn) =
   currentB { 
     roundScore = (totalDamage p1, totalDamage p2),
     isATurn    = not pTurn
@@ -86,6 +92,26 @@ evaluate currentB@(Board p1 p2 _ _ pTurn) =
     totalDamage p = getTotalDamage (cardsOnBoard p)
 -- TODO
 -- This is a minimal version of evaluate, we only cares about damage for now
+
+-- evaluates current state of board, updates player scores 
+evaluateRound :: Board -> Board 
+evaluateRound b@(Board p1 p2 _ (s1, s2) _) 
+  | s1 < s2  = b { a = p1 { score = 0 : (score p1)},
+                   b = p2 { score = 1 : (score p2)}} 
+  | s1 > s2  = b { a = p1 { score = 1 : (score p1)},
+                   b = p2 { score = 0 : (score p2)}}
+  | s1 == s2 = b { a = p1 { score = 0 : (score p1)},
+                   b = p2 { score = 0 : (score p2)}} 
+--        Previous board, isATurn
+roundStart :: Board -> Bool -> Board 
+roundStart b@(Board p1 p2 _ _ _) bool =
+  b { a = p1 { usedCards = (cardsOnBoard p1) ++ (usedCards p1),
+               cardsOnBoard = []},
+      b = p2 { usedCards = (cardsOnBoard p2) ++ (usedCards p2),
+               cardsOnBoard = []},
+      weather = [],
+      roundScore   = (0, 0),
+      isATurn   = bool}
 
 getTotalDamage :: [Card] -> Int 
 getTotalDamage ls = 
@@ -106,8 +132,13 @@ roundOver (Board p1 p2 _ _ _) =
   (isPass p1) && (isPass p2)
   where 
     isPass :: Player -> Bool
-    isPass p = (head $ cardsOnBoard $ p) == CPass        
+    isPass p = (head $ cardsOnBoard $ p) == CPass
 
+
+
+-- TODO 
+-- It would be nice if we had a lives field in Player data structure,
+-- subtract one everytime the player lose or draw
 -- checks if game is over by checking if player a or b has won
 gameOver :: Board -> Bool
 gameOver (Board p1 p2 _ _ _) =
