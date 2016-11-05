@@ -1,0 +1,15 @@
+
+Beginning of Game Sequence:
+init -> swapOneCard -> swapOneCard -> roundSequnce -> gameOver
+        swap two cards for both players
+
+
+Round Sequqnce
+roundStart -> playTurn -> evaluateTurn -> roundOver -> True -> evaluateRound
+     |        |                               False |                  |  
+     |        <--------------------------------------                  |  
+     |                                                                 |  
+     <------------------------------------------------------------------          
+
+
+
