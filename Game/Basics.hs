@@ -5,6 +5,7 @@ import Grammar.Grammar
 import Game.Cards
 import Data.List
 import System.Random
+import Control.Exception
 
 main = undefined
 
@@ -72,6 +73,13 @@ swapOneCard p c =
     (Just c', ls) -> p { cardsInHand = c' : (delete c (cardsInHand p)),
                          cardsLeft   = c  : ls }
 
+discardOpCard :: Card -> Player -> Player
+discardOpCard c p =
+  p { cardsInHand = delete c (cardsInHand p),
+      usedCards   = c : (usedCards p) }
+  
+
+
 -- player chooses card to play or pass, board updates
 playTurn :: Board -> Board
 playTurn currentB 
@@ -79,8 +87,39 @@ playTurn currentB
   | otherwise        = currentB { b = (playCard (b currentB)) }
 
 playCard :: Player -> Player
-playCard = undefined 
+playCard p = 
+  p { cardsOnBoard = cardPlayed : (cardsOnBoard p),
+      cardsInHand  = delete cardPlayed (cardsInHand p)}
+  where 
+    cardPlayed :: Card
+    cardPlayed = do 
+      res <- getAction (cardsInHand p)
+      return res
 
+peelOff :: IO Card -> Card
+peelOff input = do
+  res <- input
+  res
+-- Takes input from the terminal
+getAction :: [Card] -> IO Card
+getAction cs = do 
+  putStrLn $ show $ zip [1 .. (length cs)] (map (getName) cs)
+  putStrLn "Which card do you want to play?"
+  ans <- getLine
+  res <- try (read ans :: Int)
+  case res of
+    Left err -> do
+      putStrLn "Exception caught" ++ show err
+      getAction cs
+    Right res' -> head (drop (res' - 1) cs)
+
+
+getName :: Card -> String
+getName (CWeather n _)  = n
+getName (CUnit n _ _ _) = n
+getName (CLeader l)     = show l
+getName CPass           = "Pass"
+  
 -- evaluates current state of board, updates round scores
 evaluateTurn :: Board -> Board
 evaluateTurn currentB@(Board p1 p2 _ _ pTurn) =
