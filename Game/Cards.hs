@@ -24,7 +24,7 @@ trebuchet :: Card
 trebuchet = CUnit "Trebuchet" 3 None 6
 
 infantry :: Card
-infantry = CUnit "Poor F*cking Infantry" 1 (Bond "Poor F*cking Infantry") 1
+infantry = CUnit "Poor F*cking Infantry" 1 Bond 1
 
 albrich  :: Card
 albrich  = CUnit "Albrich" 2 None 2
