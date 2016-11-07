@@ -2,7 +2,7 @@ module Grammar.Grammar where
 
 data Board = Board { a :: Player,
                      b :: Player,
-                     weather :: [Int],
+                     weather :: [Bool],
                      roundScore :: (Int, Int),
                      isATurn :: Bool }
                    deriving (Show)
@@ -17,7 +17,7 @@ data Player = Player { cardsInHand :: [Card],
                      deriving (Show)
 
 data Card =
-    CWeather Name [Row]
+    CWeather Name Row
   | CUnit Name Row Ability Int
   | CLeader Leader
   | CPass
