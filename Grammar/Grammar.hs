@@ -2,7 +2,7 @@ module Grammar.Grammar where
 
 data Board = Board { a :: Player,
                      b :: Player,
-                     weather :: [Card],
+                     weather :: [Int],
                      roundScore :: (Int, Int),
                      isATurn :: Bool }
                    deriving (Show)
@@ -32,6 +32,7 @@ data Leader =
   | WhiteFlame -- Cancel opp Leader ability
   | EmperorNilfgaard -- Look at 3 random cards of opp hand
   | ImperialMajesty -- Pick a rain card from deck and play immediately
+  | Canceled -- If ability has been canceled (by WhiteFlame)
   deriving (Show, Eq)
 
 data Country =
@@ -40,10 +41,10 @@ data Country =
   deriving (Show, Eq)
 
 data Ability =
-    MoraleBoost -- adds +1 to units in a single row, except for this card.
+    Morale -- adds +1 to units in a single row, except for this card.
   | Scorch Row -- if opp cc units row >= 10, destroy strongest unit in row
   | Spy -- puts card in opp board, draw 2 cards
-  | Hero -- immune to abilities/special effects
+  | Hero Ability -- immune to abilities/special effects, has another ability 
   | Bond -- if beside same name card, strength of same name cards x2
   | Medic -- play unit from used pile
   | Agile -- Can be played in range combat or close combat

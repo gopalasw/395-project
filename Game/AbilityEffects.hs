@@ -4,8 +4,9 @@ import Grammar.Grammar
 import Grammar.PrettyPrint
 import Game.Cards
 
-cardsDamage :: Board -> Board
-cardsDamage board = board { roundScore = ((fst $ roundScore board) + aDamage, (snd $ roundScore board) + bDamage) }
+-- updates board with additional damage caused by abilities
+cardsAbilityDamage :: Board -> Board
+cardsAbilityDamage board = board { roundScore = ((fst $ roundScore board) + aDamage, (snd $ roundScore board) + bDamage) }
   where
     aCards = (cardsOnBoard (a board))
     bCards = (cardsOnBoard (b board))
@@ -17,15 +18,20 @@ abilityDamage board cards card = ability card
   where
     ability (CUnit _ row MoraleBoost _) = length (filter (cardInRow row) cards) - 1
     ability (c@(CUnit _ row Bond damage)) =
-      damage * ((sameName c cards) - 1) -- dont think this calculation is right..
-    ability (CUnit _ _ Horn r _) = filter (cardInRow r) cards
+      damage * (length (filter (c ==) cards) - 1)
+    ability (CUnit _ _ (Horn r) _) = getTotalDamage (filter (cardInRow r) cards)
+    ability (CUnit name row (Hero a) damage) = ability (CUnit name row a damage)
+    ability (CLeader Siegemaster) = getTotalDamage (filter (cardInRow 3)
     ability _ = 0
-
-sameName :: Card -> [Card] -> Int
-sameName _ [] = 0
-sameName card (c:cs) = count + (sameName card cs)
-  where count = if (c == card) then 1 else 0
 
 cardInRow :: Row -> Card -> Bool
 cardInRow r (CUnit _ row _ _) = r == row
 cardInRow r _ = False
+
+getTotalDamage :: [Card] -> Int 
+getTotalDamage ls = 
+   foldl (+) 0 (map getDamage ls)
+
+getDamage :: Card -> Int
+getDamage (CUnit _ _ _ d) = d 
+getDamage _               = 0
