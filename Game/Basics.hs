@@ -8,8 +8,11 @@ import System.Random
 import Control.Exception
 import System.IO.Unsafe
 import Text.Read
+import Control.Applicative
 
-main = undefined
+main = do
+  i' <- liftA (+ 4) getIndex
+  putStrLn $ show i'
 
 -- players choose country, leader, deck is initialised
 init :: (Country, Country) -> (Card, Card) -> Board
@@ -83,39 +86,37 @@ discardOpCard c p =
 
 
 -- player chooses card to play or pass, board updates
-playTurn :: Board -> Board
+playTurn :: Board -> Int -> Board
 playTurn currentB
   | isATurn currentB = currentB { a = (playCard (a currentB)) }
   | otherwise        = currentB { b = (playCard (b currentB)) }
 
 
-
--- !!!!! This function does not work !!!!! --
--- play a card, but the problem is we cannot get Card out from IO Monad
-playCard :: Player -> Player
-playCard p =
+playCard :: Player -> Int -> Player
+playCard p i = 
   p { cardsOnBoard = cardPlayed : (cardsOnBoard p),
       cardsInHand  = delete cardPlayed (cardsInHand p)}
   where
     cardPlayed :: Card
-    cardPlayed = getPlayedCard $ cardsInHand p
+    cardPlayed = getPlayedCard i $ cardsInHand p
 
--- Takes input from the terminal, returns a card
-getPlayedCard :: [Card] -> Card
-getPlayedCard cs = unsafePerformIO $ do
-  putStrLn $ show $ zip [1 .. (length cs)] (map (getName) cs)
+getIndex :: IO Int
+getIndex = do
+  --putStrLn $ show $ zip [1 .. (length cs)] (map (getName) cs)
   putStrLn "Which card do you want to play?"
   res <- getLineInt
-  return $ head (drop (res - 1) cs)
-  where
+  return res
+  where 
     getLineInt :: IO Int
     getLineInt = do
       line <- getLine
-      case readMaybe line of
+      case readMaybe line of 
         Just x -> return x
         Nothing -> putStrLn "Invalid input" >> getLineInt
 
---    Right res' -> head (drop (res' - 1) cs)
+
+getPlayedCard :: [Card] -> Int -> Card
+getPlayedCard cs i =  head (drop (i - 1) cs)
 
 getName :: Card -> String
 getName (CWeather n _)  = n
@@ -151,6 +152,8 @@ evaluateTurn currentB@(Board p1 p2 _ _ pTurn) =
 -- This is a minimal version of evaluate, we only cares about damage for now
 
 -- evaluates current state of board, updates player scores
+-- call this when round over, and decide who win
+-- who won
 evaluateRound :: Board -> Board
 evaluateRound b@(Board p1 p2 _ (s1, s2) _)
   | s1 < s2  = b { a = p1 { score = 0 : (score p1)},
