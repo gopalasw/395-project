@@ -1,4 +1,10 @@
+module Game.Turn where
 
+import Grammar.Grammar
+import Data.List
+import Game.Basics
+import Cards.Cards
+import Text.Read
 evaluateTurn :: Board -> Board
 evaluateTurn currentB@(Board p1 p2 _ _ pTurn) =
   currentB {
@@ -8,16 +14,8 @@ evaluateTurn currentB@(Board p1 p2 _ _ pTurn) =
   where
     totalDamage p = getTotalDamage (cardsOnBoard p)
   
-
-
-playTurn :: Board -> Int -> Board
-playTurn currentB
-  | isATurn currentB = currentB { a = (playCard (a currentB)) }
-  | otherwise        = currentB { b = (playCard (b currentB)) }
-
-
 playTurn :: IO Board -> IO Board
-playTurn b = do
+playTurn = undefined{--do
   b' <- b
   
 
@@ -32,12 +30,12 @@ playTurn b = do
   ask for user to choose card
   pattern match on the chosen card 
   return the updated board
-
+--}
 -- TODO
 -- 1. Which palyer is playing
 -- 2. Add the card to board (for abilities, b' <- addCardToBoard
 --    then change fields in b' and return b'
-
+{--
 addCardToBoard :: Board -> Card -> IO Board
 addCardToBoard b card@(CWeather name row) 
   | clear     = return $ b {(weather b) = [False, False, False]}
@@ -48,28 +46,8 @@ addCardToBoard b (CLeader leader) =
 addCardToBoard b (CPass) = 
   -- Check who is playing first
   (CPass) : (cardsOnBoard p) 
-
-abilityToBoard :: Board -> Ability -> IO Board
-abilityToBoard b a
-  | a == Moral         = undefined
-  | a == Scorch i      = undefined
-  | a == Spy           = undefined
-  | a == Hero ability' =
-    return $ abilityToBoard b ability' 
-  | a == Bond          = undefined
-  | a == Medic         = undefined
-  | a == Agile         = undefined
-  | a == Muster name   = undefined
-  | a == Decoy         = undefined
-  | a == Horn row      = undefined
-  | a == None          = undefined
- 
-
-
-changeElementByIndex :: [a] -> Int -> a -> [a]
-changeElementByIndex [] i _      = []
-changeElementByIndex (x:xs) 0 a' = a':xs
-changeElementByIndex (x:xs) i a' = changeElementByIndex xs (i - 1) a'
+  Call cards.evalAbility function to change the board
+--}
 
 playCard :: Player -> Int -> Player
 playCard p i = 
@@ -77,7 +55,7 @@ playCard p i =
       cardsInHand  = delete cardPlayed (cardsInHand p)}
   where
     cardPlayed :: Card
-    cardPlayed = getPlayedCard i $ cardsInHand p
+    cardPlayed = getPlayedCard (cardsInHand p) i
 
 getIndex :: IO Int
 getIndex = do
@@ -102,6 +80,5 @@ getName (CWeather n _)  = n
 getName (CUnit n _ _ _) = n
 getName (CLeader l)     = show l
 getName CPass           = "Pass"
-
 
 

@@ -1,3 +1,8 @@
+module Game.Round where
+
+import Grammar.Grammar
+import Game.Basics 
+import Cards.Cards
 
 
 
@@ -10,7 +15,6 @@ roundStart b@(Board p1 p2 _ _ _) bool =
       weather = [],
       roundScore   = (0, 0),
       isATurn   = bool}
-
 
 
 evaluateRound :: Board -> Board

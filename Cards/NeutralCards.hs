@@ -27,7 +27,7 @@ emiel :: Card
 emiel = CUnit "Emiel Regis Rohellec Terzieff" 1 None 5
 
 villen :: Card
-villen = CUnit "Villentretenmerth" 1 (Scorch 1) 7
+villen = CUnit "Villentretenmerth" 1 Scorch 7
 
 avallac :: Card
 avallac = CUnit "Avallac’h" 1 (Hero Spy) 0
