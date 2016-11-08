@@ -1,4 +1,9 @@
+module Game.Init where
 
+import Grammar.Grammar
+import Cards.Cards
+import Game.Basics
+import Data.List
 
 init :: (Country, Country) -> (Card, Card) -> Board
 init (c1, c2) (l1, l2) = Board
@@ -12,7 +17,7 @@ init (c1, c2) (l1, l2) = Board
   where
     getCards :: Country -> ([Card], [Card])
     getCards c =
-      case drawCards c 10 allCards of
+      case drawCards c 10 northernDeck of
         Just res -> res
         Nothing  -> ([], [])
 
@@ -27,4 +32,10 @@ genPlayer (drew, left) c l =
     leader       = l,
     country      = c }
 
+
+swapOneCard :: Player -> Card -> Player
+swapOneCard p c =
+  case drawCard (cardsLeft p) of
+    (Just c', ls) -> p { cardsInHand = c' : (delete c (cardsInHand p)),
+                         cardsLeft   = c  : ls }
 
