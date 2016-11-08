@@ -38,12 +38,19 @@ getCard 0 (x:xs) = Just x
 getCard i (x:xs) = getCard (i - 1) xs
 
 -- Remove a card from a deck by its index
+removeCardIndex :: Int -> [Card] -> [Card]
+removeCardIndex _ []     = []
+removeCardIndex 0 (x:xs) = xs
+removeCardIndex i (x:xs) = x : (removeCard (i - 1) xs)
 
-removeCard :: Int -> [Card] -> [Card]
-removeCard _ []     = []
-removeCard 0 (x:xs) = xs
-removeCard i (x:xs) = x : (removeCard (i - 1) xs)
-
+-- Removes a card from a deck
+removeCard :: Card -> [Card] -> [Card]
+removeCard _ [] = []
+removeCard card (c:cs) =
+  if card == c then
+    cs
+  else
+    c : (removeCard card cs)
 
 getTotalDamage :: [Card] -> Int
 getTotalDamage ls =
@@ -53,3 +60,18 @@ getDamage :: Card -> Int
 getDamage (CUnit _ _ _ d) = d
 getDamage _               = 0
 
+-- updates current player on the board with a player update function
+updateCurPlayer :: Board -> (Player -> Player) -> Board
+updateCurPlayer board func =
+  if (isATurn board) then
+    board { a = func (a board) }
+  else
+    board { b = func (b board) }
+
+-- updates opponent player on the board with a player update function
+updateOppPlayer :: Board -> (Player -> Player) -> Board
+updateOppPlayer board func =
+  if (isATurn board) then
+    board { b = func (b board) }
+  else
+    board { a = func (a board) }
