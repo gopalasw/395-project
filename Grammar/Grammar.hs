@@ -5,7 +5,7 @@ data Board = Board { a :: Player,
                      weather :: [Bool],
                      roundScore :: (Int, Int),
                      isATurn :: Bool,
-                     randomSeed :: Int }
+                     randomSeed :: StdGen }
                    deriving (Show)
 
 data Player = Player { cardsInHand :: [Card],
