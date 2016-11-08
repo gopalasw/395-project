@@ -37,16 +37,16 @@ avallac = CUnit "Avallac’h" 1 (Hero Spy) 0
 
 -- there are 3 of each weather card
 frost :: Card
-frost = CWeather "Biting Frost" [1]
+frost = CWeather "Biting Frost" 1
 
 fog :: Card
-fog = CWeather "Impenetrable Fog" [2]
+fog = CWeather "Impenetrable Fog" 2
 
 rain :: Card
-rain = CWeather "Torrential Rain" [3]
+rain = CWeather "Torrential Rain" 3
 
 clear :: Card
-clear = CWeather "Clear Weather" [1, 2, 3]
+clear = CWeather "Clear Weather" 0
 
 
 {-

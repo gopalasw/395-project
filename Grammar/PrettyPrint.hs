@@ -12,7 +12,7 @@ prettyPrintBoard board = "Board: \n" ++ "Player A\n Score:" ++ (show playerAScor
     currentHand = if (isATurn board) then (cardsInHand (a board)) else (cardsInHand (b board))
 
 prettyPrintCard :: Card -> String
-prettyPrintCard (CWeather n rows) = "(" ++ n ++ " affects " ++ (prettyPrintRows rows) ++ ")"
+prettyPrintCard (CWeather n row) = "(" ++ n ++ " affects " ++ (show row) ++ ")"
 prettyPrintCard (CUnit n row _ _) = "(" ++ n ++ ", " ++ (show row) ++ ")"
 prettyPrintCard (CLeader l) = prettyPrintLeader l
 prettyPrintCard (CPass) = "Passed"
