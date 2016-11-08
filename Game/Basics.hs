@@ -3,26 +3,36 @@ module Game.Basics where
 import Grammar.Grammar
 import Cards.Cards
 import Cards.NeutralCards
+import System.Random
 import Data.List
+import Data.Maybe
 
--- Daw a certain number of card from a country
-drawCards :: Country -> Int -> [Card] -> Maybe ([Card], [Card])
-drawCards _ _ [] = Nothing
-drawCards _ 0 ls = Just ([], ls)
-drawCards c i ls =
-  case tuple of
-  (Just card, remains) ->
-    case (drawCards c (i - 1) remains) of
-      Just (dealt, left) -> Just (card:dealt, left)
-      Nothing            -> Nothing
-      otherwise          -> Nothing
+type CardsInDeck = [Card]
+type CardsDrawn  = [Card]
+type CardsLeft   = [Card]
+type CardsToDraw = Int
+
+drawCardsR :: StdGen -> CardsToDraw -> CardsInDeck -> (Maybe CardsDrawn, CardsLeft)
+drawCardsR _ _ [] = (Nothing, [])
+drawCardsR _ 0 l  = (Nothing, l)
+drawCardsR g n l  = (Just res, filter (not . p) l)
   where
-    tuple = drawCard ls
+    res = catMaybes $ helper g n l
+    p = \x -> x `elem` res
+    helper _ _ [] = []
+    helper _ 0 _  = []
+    helper x y ls  = c : (helper x (y-1) rst)
+      where (c, rst) = drawCardR x ls
 
--- Draw a card from a deck,
--- return the card and the rest of the deck
-drawCard :: [Card] -> (Maybe Card, [Card])
-drawCard = undefined
+-- TODO: Test drawCardsR and drawCardR
+
+-- randomly draw a card from a deck
+drawCardR :: StdGen -> [Card] -> (Maybe Card, [Card])
+drawCardR _ [] = (Nothing, [])
+drawCardR g d  = (Just $ head s, f ++ (tail s))
+ where
+   (idx, _) = randomR (0, length d - 1) g
+   (f, s)   = splitAt idx d
 
 -- Get a card by its index
 -- Helper function for drawCard
