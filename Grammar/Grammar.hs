@@ -1,5 +1,5 @@
 module Grammar.Grammar where
-
+import System.Random
 data Board = Board { a :: Player,
                      b :: Player,
                      weather :: [Bool],
