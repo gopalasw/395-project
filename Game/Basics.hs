@@ -2,14 +2,8 @@ module Game.Basics where
 
 import Grammar.Grammar
 import Cards.Cards
+import Cards.NeutralCards
 import Data.List
-import System.Random
-import Control.Exception
-import System.IO.Unsafe
-import Text.Read
-import Control.Applicative
-
-main = undefined
 
 -- Daw a certain number of card from a country
 drawCards :: Country -> Int -> [Card] -> Maybe ([Card], [Card])
@@ -21,17 +15,17 @@ drawCards c i ls =
     case (drawCards c (i - 1) remains) of
       Just (dealt, left) -> Just (card:dealt, left)
       Nothing            -> Nothing
-  otherwise            -> Nothing
+      otherwise          -> Nothing
   where
     tuple = drawCard ls
 
--- Draw a card from a deck, 
+-- Draw a card from a deck,
 -- return the card and the rest of the deck
 drawCard :: [Card] -> (Maybe Card, [Card])
 drawCard = undefined
 
 -- Get a card by its index
--- Helper function for drawCard 
+-- Helper function for drawCard
 getCard :: Int -> [Card] -> Maybe Card
 getCard _ []     = Nothing
 getCard 0 (x:xs) = Just x
@@ -41,7 +35,13 @@ getCard i (x:xs) = getCard (i - 1) xs
 removeCardIndex :: Int -> [Card] -> [Card]
 removeCardIndex _ []     = []
 removeCardIndex 0 (x:xs) = xs
-removeCardIndex i (x:xs) = x : (removeCard (i - 1) xs)
+removeCardIndex i ls     = fst ++ (tail snd)
+  where (fst, snd) = splitAt i ls
+
+removeCardIndexTest =
+  (removeCardIndex 0 neutralCards) == (tail neutralCards) &&
+  (removeCardIndex 3 deck == [geralt, cirilla, vesemir, triss])
+  where deck = (take 5 neutralCards)
 
 -- Removes a card from a deck
 removeCard :: Card -> [Card] -> [Card]
