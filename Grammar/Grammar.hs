@@ -4,7 +4,8 @@ data Board = Board { a :: Player,
                      b :: Player,
                      weather :: [Bool],
                      roundScore :: (Int, Int),
-                     isATurn :: Bool }
+                     isATurn :: Bool,
+                     randomSeed :: Int }
                    deriving (Show)
 
 data Player = Player { cardsInHand :: [Card],
@@ -42,8 +43,8 @@ data Country =
 
 data Ability =
     Morale -- adds +1 to units in a single row, except for this card.
-  | Scorch Row -- if opp cc units row >= 10, destroy strongest unit in row
-  | Spy -- puts card in opp board, draw 2 cards
+  | Scorch -- if opp cc units row >= 10, destroy strongest unit in row
+  | Spy -- puts card in opp board, randomly draw 2 cards
   | Hero Ability -- immune to abilities/special effects, has another ability 
   | Bond -- if beside same name card, strength of same name cards x2
   | Medic -- play unit from used pile
