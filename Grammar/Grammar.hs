@@ -37,7 +37,7 @@ data Leader =
   deriving (Show, Eq)
 
 data Country =
-    Nothern -- Draw extra card from deck after you win a round
+    Northern -- Draw extra card from deck after you win a round
   | Nilfgaard -- Win the game if it is a draw
   deriving (Show, Eq)
 

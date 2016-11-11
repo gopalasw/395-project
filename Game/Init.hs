@@ -4,9 +4,10 @@ import Grammar.Grammar
 import Cards.Cards
 import Game.Basics
 import Data.List
+import System.Random
 
-init :: (Country, Country) -> (Card, Card) -> Board
-init (c1, c2) (l1, l2) = Board
+init :: StdGen -> (Country, Country) -> (Card, Card) -> Board
+init seed (c1, c2) (l1, l2) = Board
   {
     a          = genPlayer (getCards c1) c1 l1,
     b          = genPlayer (getCards c2) c2 l2,
@@ -15,12 +16,17 @@ init (c1, c2) (l1, l2) = Board
     isATurn    = True
   }
   where
-    getCards :: Country -> ([Card], [Card])
-    getCards c =
-      case drawCards c 10 northernDeck of
-        Just res -> res
-        Nothing  -> ([], [])
-
+    getCards :: seed -> Country -> ([Card], [Card])
+    getCards seed c 
+    | Northern  = 
+        case drawCardsR seed northernCards [] of
+          (Just drew, left) = (drew, left)
+          (Nothing,   left) = ([],   left)
+    | Nilfgaard
+         case drawCardsR seed nilfgaardCards [] of
+          (Just drew, left) = (drew, left)
+          (Nothing,   left) = ([],   left)
+    
 genPlayer :: ([Card], [Card]) -> Country -> Card -> Player
 genPlayer (drew, left) c l =
   Player {

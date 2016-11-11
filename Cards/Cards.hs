@@ -25,7 +25,7 @@ northernCards = [vernon, john, esterad, philippa,
                  crinfrid, crinfrid, crinfrid,
                  catapult, catapult, ballista, ballista,
                  siegeExpert, siegeExpert, siegeExpert,
-                 blueStripes, blueStripes, blueStripes]
+                 blueStripes, blueStripes, blueStripes] ++ neutralCards
 
 nilfgaardCards :: [Card]
 nilfgaardCards = [letho, menno, morvran, tibor,
@@ -39,4 +39,4 @@ nilfgaardCards = [letho, menno, morvran, tibor,
                   fireScorpion, fireScorpion,
                   emissary, emissary,
                   impera, impera, impera, impera,
-                  nausicaa, nausicaa, nausicaa]
+                  nausicaa, nausicaa, nausicaa] ++ neutralCards
