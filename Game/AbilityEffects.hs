@@ -24,16 +24,10 @@ abilityDamage board cards card = ability card
   where
     ability (CUnit _ row Morale _) = length (filter (cardInRow row) cards) - 1
     ability (c@(CUnit _ row Bond damage)) = damage * (length (filter (c ==) cards) - 1)
-    ability (CUnit _ _ (Horn r) _) = getTotalDamage (filter (cardInRow r) cards)
+    ability (CUnit _ r Horn _) = getTotalDamage (filter (cardInRow r) cards)
     ability (CUnit name row (Hero a) damage) = ability (CUnit name row a damage)
     ability (CLeader Siegemaster) = getTotalDamage (filter (cardInRow 3) cards)
     ability _ = 0
-
-
-cardInRow :: Row -> Card -> Bool
-cardInRow r (CUnit _ row _ _) = r == row
-cardInRow r (CWeather _ row) = r == row
-cardInRow r _ = False
 
 
 evalAbility :: Board -> Card -> IO Board
@@ -42,12 +36,13 @@ evalAbility board (c@(CUnit _ _ ability _)) = evalAbility' ability
     evalAbility' Scorch = return $ evalScorch board 1
     evalAbility' Spy = return $ evalSpy board c
     evalAbility' (Hero ability) = evalAbility' ability
-    evalAbility' Medic = undefined
-    evalAbility' Agile = undefined
+    evalAbility' Medic = return $ updateCurPlayer board (drawFromUsed (randomSeed board) 1)
+    evalAbility' Agile = return $ updateCurPlayer board (updateRow c row)
     evalAbility' Muster = return $ updateCurPlayer board (muster c)
     evalAbility' Decoy = undefined
-    evalAbility' (Horn _) = return $ updateHorn board c row
+    evalAbility' Horn = return $ updateCurPlayer board (updateRow c row)
     evalAbility' _ = return board
+    row = 1 -- TODO: read in row from user input
 evalAbility board (CLeader leader) = evalLeader leader
   where
     evalLeader SteelForged = return $ evalScorch board 3
@@ -59,6 +54,10 @@ evalAbility board (CLeader leader) = evalLeader leader
     evalLeader ImperialMajesty = undefined
     evalLeader _ = return board
 evalAbility board _ = return board
+
+updateRow :: Card -> Row -> Player -> Player
+updateRow (c@(CUnit name _ ability damage)) row p =
+  p { cardsOnBoard = (CUnit name row ability damage) : (delete c (cardsOnBoard p)) }
 
 
 evalScorch :: Board -> Row -> Board
@@ -75,7 +74,7 @@ evalScorch board r =
 
 
 evalSpy :: Board -> Card -> Board
-evalSpy board spy = updateCurPlayer (updateOppPlayer board (playSpy spy)) ((removeSpy spy) . (drawTwo (randomSeed board)))
+evalSpy board spy = updateCurPlayer (updateOppPlayer board (playSpy spy)) ((removeSpy spy) . (drawFromUsed (randomSeed board) 2))
 
 
 playSpy :: Card -> Player -> Player
@@ -88,13 +87,13 @@ removeSpy spy p =
   p { cardsOnBoard = delete spy (cardsOnBoard p) }
 
 
-drawTwo :: StdGen -> Player -> Player
-drawTwo seed p =
+drawFromUsed :: StdGen -> Int -> Player -> Player
+drawFromUsed seed n p =
   p { cardsInHand = (fst cards) ++ (cardsInHand p),
       usedCards = snd cards }
   where
     cards =
-      case drawCardsR seed 2 (usedCards p) of
+      case drawCardsR seed n (usedCards p) of
       (Just drew, left) -> (drew, left)
       (Nothing,   left) -> ([],   left)
 
@@ -137,16 +136,13 @@ data Leader =
   deriving (Show, Eq)
 
 data Ability =
-  | Spy -- puts card in opp board, draw 2 cards
   | Hero Ability -- immune to abilities/special effects, has another ability 
-  | Medic -- play unit from used pile
   | Agile -- Can be played in range combat or close combat
   | Decoy -- take card on board back into hand, replace it with the decoy
-  | Horn Row -- choose a row, double strength of all cards in that row
   deriving (Show, Eq)
 
 data Country =
-    Nothern -- Draw extra card from deck after you win a round
+    Northern -- Draw extra card from deck after you win a round
   | Nilfgaard -- Win the game if it is a draw
   deriving (Show, Eq)
 
