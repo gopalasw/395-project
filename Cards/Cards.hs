@@ -1,10 +1,14 @@
 module Cards.Cards where
 
 import Grammar.Grammar
-import Grammar.PrettyPrint
 import Cards.NeutralCards
 import Cards.NorthernCards
 import Cards.NilfgaardCards
+
+cardInRow :: Row -> Card -> Bool
+cardInRow r (CUnit _ row _ _) = r == row
+cardInRow r (CWeather _ row) = r == row
+cardInRow r _ = False
 
 neutralCards :: [Card]
 neutralCards = [geralt, cirilla, vesemir,

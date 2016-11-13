@@ -6,6 +6,7 @@ import Cards.Cards
 import Game.Basics
 import Data.List
 import System.Random
+import Grammar.Board
 
 
 -- updates board with additional damage caused by abilities
@@ -45,7 +46,7 @@ evalAbility board (c@(CUnit _ _ ability _)) = evalAbility' ability
     evalAbility' Agile = undefined
     evalAbility' Muster = return $ updateCurPlayer board (muster c)
     evalAbility' Decoy = undefined
-    evalAbility' (Horn _) = undefined
+    evalAbility' (Horn _) = return $ updateHorn board c row
     evalAbility' _ = return board
 evalAbility board (CLeader leader) = evalLeader leader
   where
@@ -81,9 +82,11 @@ playSpy :: Card -> Player -> Player
 playSpy card p =
   p { cardsOnBoard = card : (cardsOnBoard p) }
 
+
 removeSpy :: Card -> Player -> Player
 removeSpy spy p =
   p { cardsOnBoard = delete spy (cardsOnBoard p) }
+
 
 drawTwo :: StdGen -> Player -> Player
 drawTwo seed p =
@@ -94,6 +97,7 @@ drawTwo seed p =
       case drawCardsR seed 2 (usedCards p) of
       (Just drew, left) -> (drew, left)
       (Nothing,   left) -> ([],   left)
+
 
 discardMaxCard :: Row -> Player -> Player
 discardMaxCard r p =
