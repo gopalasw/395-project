@@ -1,15 +1,8 @@
 module Grammar.Grammar where
 import System.Random
-data Board = Board { a :: Player,
-                     b :: Player,
-                     weather :: [Bool],
-                     roundScore :: (Int, Int),
-                     isATurn :: Bool,
-                     randomSeed :: StdGen }
-                   deriving (Show)
 
 data Player = Player { cardsInHand :: [Card],
-                       cardsLeft :: [Card], 
+                       cardsLeft :: [Card],
                        cardsOnBoard :: [Card],
                        usedCards :: [Card],
                        score :: [Int],
@@ -25,7 +18,7 @@ data Card =
   deriving (Show, Eq)
 
 data Leader =
-    SteelForged  -- Scorch Siege if enemies Siege strength is 10 or higher 
+    SteelForged  -- Scorch Siege if enemies Siege strength is 10 or higher
   | Siegemaster -- Horn on Siege row
   | NorthCommander -- Clear any Weather effects
   | KingTemeria -- Pick a Fog card from your deck and play it immediately
@@ -45,7 +38,7 @@ data Ability =
     Morale -- adds +1 to units in a single row, except for this card.
   | Scorch -- if opp cc units row >= 10, destroy strongest unit in row
   | Spy -- puts card in opp board, randomly draw 2 cards
-  | Hero Ability -- immune to abilities/special effects, has another ability 
+  | Hero Ability -- immune to abilities/special effects, has another ability
   | Bond -- if beside same name card, strength of same name cards x2
   | Medic -- play unit from used pile
   | Agile -- Can be played in range combat or close combat

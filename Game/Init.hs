@@ -1,8 +1,10 @@
 module Game.Init where
 
 import Grammar.Grammar
+import Grammar.Board
 import Cards.Cards
 import Game.Basics
+
 import Data.List
 import System.Random
 

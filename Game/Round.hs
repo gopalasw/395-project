@@ -1,10 +1,8 @@
 module Game.Round where
 
 import Grammar.Grammar
-import Game.Basics 
+import Game.Basics
 import Cards.Cards
-
-
 
 roundStart :: Board -> Bool -> Board
 roundStart b@(Board p1 p2 _ _ _) bool =
@@ -33,6 +31,3 @@ roundOver (Board p1 p2 _ _ _) =
   where
     isPass :: Player -> Bool
     isPass p = (head $ cardsOnBoard $ p) == CPass
-
-
-
