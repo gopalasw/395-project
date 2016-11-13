@@ -53,15 +53,6 @@ removeCardIndexTest =
   (removeCardIndex 3 deck == [geralt, cirilla, vesemir, triss])
   where deck = (take 5 neutralCards)
 
--- Removes a card from a deck
-removeCard :: Card -> [Card] -> [Card]
-removeCard _ [] = []
-removeCard card (c:cs) =
-  if card == c then
-    cs
-  else
-    c : (removeCard card cs)
-
 getTotalDamage :: [Card] -> Int
 getTotalDamage ls =
    foldl (+) 0 (map getDamage ls)

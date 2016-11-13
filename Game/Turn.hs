@@ -15,17 +15,17 @@ evaluateTurn currentB@(Board p1 p2 _ _ pTurn _) =
   }
   where
     totalDamage p = getTotalDamage (cardsOnBoard p)
-  
+
 playTurn :: IO Board -> IO Board
 playTurn board = do
   board' <- board
   if isATurn board'
-  then do 
+  then do
     card <- getCardHelper (cardsInHand $ a board')
-    evalAbility (board' { a = updatePlayedCard (a board') card }) card 
-  else do 
-    card <- getCardHelper (cardsInHand $ b board') 
-    evalAbility (board' { b = updatePlayedCard (b board') card }) card 
+    evalAbility (board' { a = updatePlayedCard (a board') card }) card
+  else do
+    card <- getCardHelper (cardsInHand $ b board')
+    evalAbility (board' { b = updatePlayedCard (b board') card }) card
   -- Cannot be simiplied.
   where
     getCardHelper :: [Card] -> IO Card
@@ -36,10 +36,9 @@ playTurn board = do
         Nothing   -> putStrLn "Invalid Input " >> getCardHelper cs
 
 updatePlayedCard :: Player -> Card -> Player
-updatePlayedCard p card = 
+updatePlayedCard p card =
   p { cardsOnBoard = card : (cardsOnBoard p),
       cardsInHand  = delete card (cardsInHand p)}
-
 
 getIndex :: [Card] -> IO Int
 getIndex cs = do
@@ -47,11 +46,11 @@ getIndex cs = do
   putStrLn "Which card do you want to play?"
   res <- getLineInt
   return res
-  where 
+  where
     getLineInt :: IO Int
     getLineInt = do
       line <- getLine
-      case readMaybe line of 
+      case readMaybe line of
         Just x -> return x
         Nothing -> putStrLn "Invalid input" >> getLineInt
 
@@ -60,5 +59,3 @@ getName (CWeather n _)  = n
 getName (CUnit n _ _ _) = n
 getName (CLeader l)     = show l
 getName CPass           = "Pass"
-
-

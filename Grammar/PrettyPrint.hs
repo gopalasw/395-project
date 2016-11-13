@@ -36,5 +36,5 @@ prettyPrintLeader EmperorNilfgaard = "Emperor Nilfgaard"
 prettyPrintLeader ImperialMajesty = "Imperial Majesty"
 
 prettyPrintCountry :: Country -> String
-prettyPrintCountry Nothern = "Nothern"
+prettyPrintCountry Northern = "Northern"
 prettyPrintCountry Nilfgaard = "Nilfgaard"

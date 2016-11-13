@@ -11,7 +11,7 @@ import Grammar.Grammar
 main = do
   t <- getCurrentTime
   putStrLn $ show $
-    initB (seed t) (Northern, Northern) ((CLeader Relentless), (CLeader Canceled))
+    initBoard (seed t) (Northern, Northern) ((CLeader Relentless), (CLeader Canceled))
 
   where
     seed t = snd $ next $ mkStdGen $ floor $ utctDayTime t
