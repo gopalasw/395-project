@@ -49,7 +49,7 @@ data Ability =
   | Bond -- if beside same name card, strength of same name cards x2
   | Medic -- play unit from used pile
   | Agile -- Can be played in range combat or close combat
-  | Muster Name -- play all cards with same name from hand + deck right away
+  | Muster -- play all cards with same name from hand + deck right away
   | Decoy -- take card on board back into hand, replace it with the decoy
   | Horn Row -- choose a row, double strength of all cards in that row
   | None -- No ability
