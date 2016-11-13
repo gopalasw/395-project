@@ -1,6 +1,7 @@
 module Grammar.PrettyPrint where
 
 import Grammar.Grammar
+import Grammar.Board
 
 prettyPrintBoard :: Board -> String
 prettyPrintBoard board = "Board: \n" ++ "Player A\n Score:" ++ (show playerAScore) ++ "\n" ++ playerACards ++ "\nPlayer B\n Score:" ++ (show playerBScore) ++ "\n" ++ playerBCards ++ "\n Current Hand: " ++ (show currentHand)

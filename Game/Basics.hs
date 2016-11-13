@@ -1,8 +1,10 @@
 module Game.Basics where
 
 import Grammar.Grammar
+import Grammar.Board
 import Cards.Cards
 import Cards.NeutralCards
+
 import System.Random
 import Data.List
 import Data.Maybe
