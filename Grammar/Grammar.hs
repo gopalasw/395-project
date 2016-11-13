@@ -44,7 +44,7 @@ data Ability =
   | Agile -- Can be played in range combat or close combat
   | Muster -- play all cards with same name from hand + deck right away
   | Decoy -- take card on board back into hand, replace it with the decoy
-  | Horn Row -- choose a row, double strength of all cards in that row
+  | Horn -- choose a row, double strength of all cards in that row
   | None -- No ability
   deriving (Show, Eq)
 
