@@ -1,9 +1,9 @@
 module Game.Main where
 
-import Game.Basics
-import Game.Turn
 import Cards.Cards
+import Game.Basics
 import Game.Init
+import Game.Round
 import Grammar.Grammar
 import Grammar.PrettyPrint
 
@@ -14,11 +14,11 @@ import Data.Time.Clock
 main = do
   t <- getCurrentTime
   board <- pure $ board t
-  putStrLn $ prettyPrintBoard board
-  board <- turnLoop $ pure $ board
+  board <- roundLoop $ roundLoop $ pure board
+  -- Is the game over? If so, then another round.
+  -- board <- roundLoop $ pure board
   putStrLn $ prettyPrintBoard board
   where
     seed :: UTCTime -> StdGen
     seed t = mkStdGen $ floor $ utctDayTime t
     board t = initBoard (seed t) (Northern, Northern) ((CLeader Relentless), (CLeader Canceled))
-

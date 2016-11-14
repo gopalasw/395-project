@@ -8,7 +8,6 @@ import Grammar.Board
 import Grammar.PrettyPrint
 import Game.Basics
 import Game.AbilityEffects
-import Game.Round
 import Cards.Cards
 
 turnLoop :: IO Board -> IO Board
@@ -17,7 +16,17 @@ turnLoop board = do
   b <- playTurn $ pure b
   b <- pure $ evaluateTurn b
   putStrLn $ prettyPrintBoard b
-  if not (roundOver b) then turnLoop (pure b) else return b
+  if not (roundOver b) then turnLoop (pure b) else putStrLn "\nRound over.\n\n" >> return b
+  -- TODO Print who won the round.
+
+roundOver :: Board -> Bool
+roundOver (Board p1 p2 _ _ _ _) =
+  if (noCardsPlayed p1) || (noCardsPlayed p2) then False else (isPass p1) && (isPass p2)
+  where
+    noCardsPlayed :: Player -> Bool
+    noCardsPlayed p = [] == cardsOnBoard p
+    isPass :: Player -> Bool
+    isPass p = (head $ cardsOnBoard $ p) == CPass
 
 evaluateTurn :: Board -> Board
 evaluateTurn currentB@(Board p1 p2 _ _ pTurn _) =
@@ -33,10 +42,10 @@ playTurn board = do
   board' <- board
   if isATurn board'
   then do
-    card <- getCardHelper (cardsInHand $ a board')
+    card <- getCardHelper ((cardsInHand $ a board') ++ [CPass])
     evalAbility (board' { a = updatePlayedCard (a board') card }) card
   else do
-    card <- getCardHelper (cardsInHand $ b board')
+    card <- getCardHelper ((cardsInHand $ b board') ++ [CPass])
     evalAbility (board' { b = updatePlayedCard (b board') card }) card
   where
     getCardHelper :: [Card] -> IO Card
@@ -47,6 +56,9 @@ playTurn board = do
         Nothing   -> putStrLn "Invalid Input " >> getCardHelper cs
 
 updatePlayedCard :: Player -> Card -> Player
+updatePlayedCard p CPass =
+  p { cardsOnBoard = CPass : (cardsOnBoard p),
+      cardsInHand  = cardsInHand p }
 updatePlayedCard p card =
   p { cardsOnBoard = card : (cardsOnBoard p),
       cardsInHand  = delete card (cardsInHand p)}
