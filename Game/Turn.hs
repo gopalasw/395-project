@@ -1,11 +1,23 @@
 module Game.Turn where
 
-import Grammar.Grammar
 import Data.List
-import Game.Basics
-import Cards.Cards
 import Text.Read
+
+import Grammar.Grammar
+import Grammar.Board
+import Grammar.PrettyPrint
+import Game.Basics
 import Game.AbilityEffects
+import Game.Round
+import Cards.Cards
+
+turnLoop :: IO Board -> IO Board
+turnLoop board = do
+  b <- board
+  b <- playTurn $ pure b
+  b <- pure $ evaluateTurn b
+  putStrLn $ prettyPrintBoard b
+  if not (roundOver b) then turnLoop (pure b) else return b
 
 evaluateTurn :: Board -> Board
 evaluateTurn currentB@(Board p1 p2 _ _ pTurn _) =
@@ -26,11 +38,10 @@ playTurn board = do
   else do
     card <- getCardHelper (cardsInHand $ b board')
     evalAbility (board' { b = updatePlayedCard (b board') card }) card
-  -- Cannot be simiplied.
   where
     getCardHelper :: [Card] -> IO Card
     getCardHelper cs = do
-      index <- getIndex cs
+      index <- getPlayIndex cs
       case getCard index cs of
         Just card -> return card
         Nothing   -> putStrLn "Invalid Input " >> getCardHelper cs
@@ -40,10 +51,16 @@ updatePlayedCard p card =
   p { cardsOnBoard = card : (cardsOnBoard p),
       cardsInHand  = delete card (cardsInHand p)}
 
-getIndex :: [Card] -> IO Int
-getIndex cs = do
+getPlayIndex :: [Card] -> IO Int
+getPlayIndex = getIndex "Which card do you want to play?"
+
+getSwapIndex :: [Card] -> IO Int
+getSwapIndex = getIndex "Which card do you want to swap?"
+
+getIndex :: String -> [Card] -> IO Int
+getIndex s cs = do
   putStrLn $ show $ zip [1 .. (length cs)] (map (getName) cs)
-  putStrLn "Which card do you want to play?"
+  putStrLn s
   res <- getLineInt
   return res
   where
@@ -51,7 +68,7 @@ getIndex cs = do
     getLineInt = do
       line <- getLine
       case readMaybe line of
-        Just x -> return x
+        Just x  -> return (x-1) -- List is index from 1 to X
         Nothing -> putStrLn "Invalid input" >> getLineInt
 
 getName :: Card -> String
