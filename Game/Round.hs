@@ -2,15 +2,18 @@ module Game.Round where
 
 import Grammar.Board
 import Grammar.Grammar
+import Grammar.PrettyPrint
 import Game.Basics
 import Game.Turn
 import Cards.Cards
 
-roundLoop :: IO Board -> IO Board
-roundLoop board = do
+roundSeq :: IO Board -> IO Board
+roundSeq board = do
   b <- board
   b <- turnLoop $ pure $ roundStart b True -- TODO: Change this Bool to accurately represent who starts rounds
-  return $ evaluateRound b
+  b <- pure $ evaluateRound b
+  putStrLn $ prettyPrintStatus b
+  return b
 
 roundStart :: Board -> Bool -> Board
 roundStart b@(Board p1 p2 _ _ _ _) bool =
@@ -25,11 +28,11 @@ roundStart b@(Board p1 p2 _ _ _ _) bool =
 
 evaluateRound :: Board -> Board
 evaluateRound b@(Board p1 p2 _ (s1, s2) _ _)
-  | s1 < s2  = b { a = p1 { score = 0 : (score p1)},
-                   b = p2 { score = 1 : (score p2)}}
-  | s1 > s2  = b { a = p1 { score = 1 : (score p1)},
-                   b = p2 { score = 0 : (score p2)}}
-  | s1 == s2 = b { a = p1 { score = 0 : (score p1)},
-                   b = p2 { score = 0 : (score p2)}}
+  | s1 < s2  = b { a = p1 { lives = 0 : (lives p1)},
+                   b = p2 { lives = 1 : (lives p2)}}
+  | s1 > s2  = b { a = p1 { lives = 1 : (lives p1)},
+                   b = p2 { lives = 0 : (lives p2)}}
+  | s1 == s2 = b { a = p1 { lives = 0 : (lives p1)},
+                   b = p2 { lives = 0 : (lives p2)}}
 
 

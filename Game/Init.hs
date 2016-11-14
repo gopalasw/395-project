@@ -43,7 +43,7 @@ genPlayer (drew, left) c l =
     cardsLeft    = left,
     cardsOnBoard = [],
     usedCards    = [],
-    score        = [],
+    lives        = [],
     leader       = l,
     country      = c }
 

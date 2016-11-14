@@ -14,9 +14,9 @@ import Data.Time.Clock
 main = do
   t <- getCurrentTime
   board <- pure $ board t
-  board <- roundLoop $ roundLoop $ pure board
+  board <- roundSeq $ roundSeq $ pure board
   -- Is the game over? If so, then another round.
-  -- board <- roundLoop $ pure board
+  -- board <- roundSeq $ pure board
   putStrLn $ prettyPrintBoard board
   where
     seed :: UTCTime -> StdGen

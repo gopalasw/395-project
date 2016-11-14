@@ -17,6 +17,14 @@ prettyPrintBoard board =
     playerBScore = snd (roundScore board)
     currentHand  = if (isATurn board) then (cardsInHand (a board)) else (cardsInHand (b board))
 
+
+prettyPrintStatus :: Board -> String
+prettyPrintStatus board =
+     "\nPlayer A's Lives: " ++ (show (lives $ a board))
+  ++ " Player B's Lives: " ++ (show (lives $ b board))
+  ++ "\n"
+
+
 prettyPrintCard :: Card -> String
 prettyPrintCard (CWeather n row)   = n ++ " "
 prettyPrintCard (CUnit n _  _ dmg) = n ++ " (D: " ++ (show dmg) ++ ") "
