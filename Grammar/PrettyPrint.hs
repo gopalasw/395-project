@@ -18,10 +18,10 @@ prettyPrintBoard board =
     currentHand  = if (isATurn board) then (cardsInHand (a board)) else (cardsInHand (b board))
 
 prettyPrintCard :: Card -> String
-prettyPrintCard (CWeather n row)  = "(" ++ n ++ " affects " ++ (show row) ++ ")"
-prettyPrintCard (CUnit n row _ _) = "(" ++ n ++ ", " ++ (show row) ++ ")"
-prettyPrintCard (CLeader l)       = prettyPrintLeader l
-prettyPrintCard (CPass)           = "Passed"
+prettyPrintCard (CWeather n row)   = n ++ " "
+prettyPrintCard (CUnit n _  _ dmg) = n ++ " (D: " ++ (show dmg) ++ ") "
+prettyPrintCard (CLeader l)        = prettyPrintLeader l
+prettyPrintCard (CPass)            = "Passed"
 
 prettyPrintCards :: [Card] -> String
 prettyPrintCards [] = ""

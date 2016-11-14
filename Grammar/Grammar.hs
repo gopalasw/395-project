@@ -12,7 +12,7 @@ data Player = Player { cardsInHand :: [Card],
 
 data Card =
     CWeather Name Row
-  | CUnit Name Row Ability Int
+  | CUnit Name Row Ability Damage
   | CLeader Leader
   | CPass
   deriving (Show, Eq)
@@ -51,4 +51,5 @@ data Ability =
 
 type Name = String -- Name of cards/countries/leaders
 type Row = Int -- Rows that the card can be played on/affects
+type Damage = Int
 type Deck = (Country, [Card]) -- (Country name, relevant cards)
