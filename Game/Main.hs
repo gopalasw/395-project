@@ -13,39 +13,51 @@ import Data.Time.Clock
 
 main = do
   t <- getCurrentTime
-  board <- pure $ board t
+  board <- pure $ brd t
   board <- roundSeq $ roundSeq $ pure board
-  -- Is the game over? If so, then another round.
-  -- board <- roundSeq $ pure board
-  if (gameOver board) 
-  then 
-    putStrLn $ gameEnd board 
-  else do
+  if (gameOver board)
+  then
+    putStrLn $ gameEnd board
+    else do -- If the game isn't over, play the last round.
     board <- roundSeq $ pure board
-    putStrLn $ gameEnd board 
-  
+    putStrLn $ gameEnd board
   putStrLn $ prettyPrintBoard board
-  
   where
     seed :: UTCTime -> StdGen
     seed t = mkStdGen $ floor $ utctDayTime t
-    board t = initBoard (seed t) (Northern, Northern) ((CLeader Relentless), (CLeader Canceled))
+    brd t = initBoard (seed t) (Northern, Northern) ((CLeader Relentless), (CLeader Canceled))
 
-gameEnd :: Board -> String 
+
+gameEnd :: Board -> String
 gameEnd board =
   case evalGame board of
-    (True,  False) -> "Game Over, the winner is player 1"
-    (False, True)  -> "Game Over, the winner is player 2"
-    (False, False) -> "Game Over, no one wins in this game"
-    (True,  True)  -> error "Game error: two winners"
+    (True,  False) -> "Game Over, the winner is player 1.\n"
+    (False, True)  -> "Game Over, the winner is player 2.\n"
+    (False, False) -> "Game Over, no one wins in this game.\n"
+    (True,  True)  -> error "Game error: two winners.\n"
 
 
 gameOver :: Board -> Bool
 gameOver (Board p1 p2 _ _ _ _) =
-  (length (lives p1)) == (length (lives p2)) &&
-  (length (lives p1)) == 3
+  (sameNGamesPlayed && (wonByP1 == 2 || wonByP2 == 2)) || --Either player won two rounds
+  (sameNGamesPlayed && (gamesPlayedP1 == 2 || gamesPlayedP1 == 3))
+  && (wonByP1 == 0 && wonByP2 == 0) || --Both players have had at least 2 draws
+  (sameNGamesPlayed && (gamesPlayedP1 == 3) && (wonByP1 == 1) && (wonByP2 == 1))
+    -- Both players won one round each, and then had a draw
+    where
+      wonByP1 = foldl (+) 0 (lives p1)
+      wonByP2 = foldl (+) 0 (lives p2)
+      gamesPlayedP1 = length (lives p1)
+      gamesPlayedP2 = length (lives p2)
+      sameNGamesPlayed = gamesPlayedP1 == gamesPlayedP2
+
 
 evalGame :: Board -> (Bool, Bool)
-evalGame (Board p1 p2 _ _ _ _) = 
-  (((foldl (+) 0 (lives p1)) == 2), 
-   ((foldl (+) 0 (lives p2)) == 2))
+evalGame (Board p1 p2 _ _ _ _)
+  | wonByP1 > wonByP2  = (True, False)
+  | wonByP2 > wonByP1  = (False, True)
+  | wonByP2 == wonByP1 = (False, False)
+  | otherwise          = (True, True)
+  where
+    wonByP1 = foldl (+) 0 (lives p1)
+    wonByP2 = foldl (+) 0 (lives p2)
