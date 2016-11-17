@@ -39,17 +39,19 @@ gameEnd board =
 
 gameOver :: Board -> Bool
 gameOver (Board p1 p2 _ _ _ _) =
-  (sameNGamesPlayed && (wonByP1 == 2 || wonByP2 == 2)) || --Either player won two rounds
+  (sameNGamesPlayed && (lostByP1 == 2 || lostByP2 == 2)) || --Either player lost two rounds
   (sameNGamesPlayed && (gamesPlayedP1 == 2 || gamesPlayedP1 == 3))
-  && (wonByP1 == 0 && wonByP2 == 0) || --Both players have had at least 2 draws
+  && (wonByP1 == 0 && wonByP2 == 0) || --Both players have had 2 draws
   (sameNGamesPlayed && (gamesPlayedP1 == 3) && (wonByP1 == 1) && (wonByP2 == 1))
     -- Both players won one round each, and then had a draw
     where
-      wonByP1 = foldl (+) 0 (lives p1)
-      wonByP2 = foldl (+) 0 (lives p2)
-      gamesPlayedP1 = length (lives p1)
-      gamesPlayedP2 = length (lives p2)
-      sameNGamesPlayed = gamesPlayedP1 == gamesPlayedP2
+      wonByP1          = foldl (+) 0 (lives p1)
+      lostByP1         = foldl (\acc x -> if x  =  = 0 then (acc+1) else acc) 0 (lives p1)
+      wonByP2          = foldl (+) 0 (lives p2)
+      lostByP2         = foldl (\acc x -> if x  =  = 0 then (acc+1) else acc) 0 (lives p2)
+      gamesPlayedP1    = length (lives p1)
+      gamesPlayedP2    = length (lives p2)
+      sameNGamesPlayed = gamesPlayedP1          =  = gamesPlayedP2
 
 
 evalGame :: Board -> (Bool, Bool)
