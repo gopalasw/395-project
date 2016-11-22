@@ -9,6 +9,7 @@ import Grammar.PrettyPrint
 import Game.Basics
 import Game.AbilityEffects
 import Cards.Cards
+import Game.UserInput
 
 turnLoop :: IO Board -> IO Board
 turnLoop board = do
@@ -40,51 +41,19 @@ evaluateTurn currentB@(Board p1 p2 _ _ pTurn _) =
 playTurn :: IO Board -> IO Board
 playTurn board = do
   board' <- board
-  if isATurn board'
-  then do
-    card <- getCardHelper ((cardsInHand $ a board') ++ [CPass])
-    evalAbility (board' { a = updatePlayedCard (a board') card }) card
-  else do
-    card <- getCardHelper ((cardsInHand $ b board') ++ [CPass])
-    evalAbility (board' { b = updatePlayedCard (b board') card }) card
+  card <- getCardHelper ((getCurHand board') ++ [CPass]) getPlayIndex
+  evalAbility (updateCurPlayer board' (updatePlayedCard card)) card
   where
-    getCardHelper :: [Card] -> IO Card
-    getCardHelper cs = do
-      index <- getPlayIndex cs
-      case getCard index cs of
-        Just card -> return card
-        Nothing   -> putStrLn "Invalid Input " >> getCardHelper cs
+    getCurHand board' =
+      if isATurn board' then
+        (cardsInHand $ a board')
+      else
+        (cardsInHand $ b board')
 
-updatePlayedCard :: Player -> Card -> Player
-updatePlayedCard p CPass =
+updatePlayedCard :: Card -> Player -> Player
+updatePlayedCard CPass p =
   p { cardsOnBoard = CPass : (cardsOnBoard p),
       cardsInHand  = cardsInHand p }
-updatePlayedCard p card =
+updatePlayedCard card p =
   p { cardsOnBoard = card : (cardsOnBoard p),
       cardsInHand  = delete card (cardsInHand p)}
-
-getPlayIndex :: [Card] -> IO Int
-getPlayIndex = getIndex "Which card do you want to play?"
-
-getSwapIndex :: [Card] -> IO Int
-getSwapIndex = getIndex "Which card do you want to swap?"
-
-getIndex :: String -> [Card] -> IO Int
-getIndex s cs = do
-  putStrLn $ show $ zip [1 .. (length cs)] (map (getName) cs)
-  putStrLn s
-  res <- getLineInt
-  return res
-  where
-    getLineInt :: IO Int
-    getLineInt = do
-      line <- getLine
-      case readMaybe line of
-        Just x  -> return (x-1) -- List is index from 1 to X
-        Nothing -> putStrLn "Invalid input" >> getLineInt
-
-getName :: Card -> String
-getName (CWeather n _)  = n
-getName (CUnit n _ _ _) = n
-getName (CLeader l)     = show l
-getName CPass           = "Pass"

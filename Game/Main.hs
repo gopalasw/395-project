@@ -46,12 +46,12 @@ gameOver (Board p1 p2 _ _ _ _) =
     -- Both players won one round each, and then had a draw
     where
       wonByP1          = foldl (+) 0 (lives p1)
-      lostByP1         = foldl (\acc x -> if x  =  = 0 then (acc+1) else acc) 0 (lives p1)
+      lostByP1         = foldl (\acc x -> if x  == 0 then (acc+1) else acc) 0 (lives p1)
       wonByP2          = foldl (+) 0 (lives p2)
-      lostByP2         = foldl (\acc x -> if x  =  = 0 then (acc+1) else acc) 0 (lives p2)
+      lostByP2         = foldl (\acc x -> if x  == 0 then (acc+1) else acc) 0 (lives p2)
       gamesPlayedP1    = length (lives p1)
       gamesPlayedP2    = length (lives p2)
-      sameNGamesPlayed = gamesPlayedP1          =  = gamesPlayedP2
+      sameNGamesPlayed = gamesPlayedP1          == gamesPlayedP2
 
 
 evalGame :: Board -> (Bool, Bool)

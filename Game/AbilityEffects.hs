@@ -4,6 +4,7 @@ import Grammar.Grammar
 import Grammar.PrettyPrint
 import Cards.Cards
 import Game.Basics
+import Game.UserInput
 import Data.List
 import System.Random
 import Grammar.Board
@@ -36,13 +37,24 @@ evalAbility board (c@(CUnit _ _ ability _)) = evalAbility' ability
     evalAbility' Scorch = return $ evalScorch board 1
     evalAbility' Spy = return $ evalSpy board c
     evalAbility' (Hero ability) = evalAbility' ability
-    evalAbility' Medic = return $ updateCurPlayer board (drawFromUsed (randomSeed board) 1)
-    evalAbility' Agile = return $ updateCurPlayer board (updateRow c row)
+    evalAbility' Medic = return $ updateCurPlayer board
+                          (drawFromUsed (randomSeed board) 1)
+    evalAbility' Agile = do
+      r <- getRow
+      return $ updateCurPlayer board (updateRow c r)
     evalAbility' Muster = return $ updateCurPlayer board (muster c)
-    evalAbility' Decoy = undefined
-    evalAbility' Horn = return $ updateCurPlayer board (updateRow c row)
+    evalAbility' Decoy = do
+      card <- getCardHelper cardsOnPlayersBoard getSwapIndex
+      return $ updateCurPlayer board $ updateDecoy card c
+    evalAbility' Horn = do
+      r <- getRow
+      return $ updateCurPlayer board (updateRow c r)
     evalAbility' _ = return board
-    row = 1 -- TODO: read in row from user input
+    cardsOnPlayersBoard =
+      if isATurn board then
+        (cardsOnBoard $ a board)
+      else
+        (cardsOnBoard $ b board)
 evalAbility board (CLeader leader) = evalLeader leader
   where
     evalLeader SteelForged = return $ evalScorch board 3
@@ -59,6 +71,9 @@ updateRow :: Card -> Row -> Player -> Player
 updateRow (c@(CUnit name _ ability damage)) row p =
   p { cardsOnBoard = (CUnit name row ability damage) : (delete c (cardsOnBoard p)) }
 
+updateDecoy :: Card -> Card -> Player -> Player
+updateDecoy c decoy p =
+  p { cardsOnBoard = decoy : (delete c (cardsOnBoard p)), cardsInHand = delete decoy (cardsInHand p) }
 
 evalScorch :: Board -> Row -> Board
 evalScorch board r =
@@ -88,6 +103,7 @@ removeSpy spy p =
 
 
 drawFromUsed :: StdGen -> Int -> Player -> Player
+
 drawFromUsed seed n p =
   p { cardsInHand = (fst cards) ++ (cardsInHand p),
       usedCards = snd cards }
@@ -96,7 +112,6 @@ drawFromUsed seed n p =
       case drawCardsR seed n (usedCards p) of
       (Just drew, left) -> (drew, left)
       (Nothing,   left) -> ([],   left)
-
 
 discardMaxCard :: Row -> Player -> Player
 discardMaxCard r p =
@@ -137,7 +152,6 @@ data Leader =
 
 data Ability =
   | Hero Ability -- immune to abilities/special effects, has another ability 
-  | Agile -- Can be played in range combat or close combat
   | Decoy -- take card on board back into hand, replace it with the decoy
   deriving (Show, Eq)
 
