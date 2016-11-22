@@ -21,7 +21,7 @@ roundStart b@(Board p1 p2 _ _ _ _) bool =
                cardsOnBoard = []},
       b = p2 { usedCards = (cardsOnBoard p2) ++ (usedCards p2),
                cardsOnBoard = []},
-      weather = [],
+      weather = (False, False, False),
       roundScore   = (0, 0),
       isATurn   = bool}
 

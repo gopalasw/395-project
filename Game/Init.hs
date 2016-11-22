@@ -13,7 +13,7 @@ initBoard gen (c1, c2) (l1, l2) = Board
   {
     a          = genPlayer (getCards gen c1) c1 l1,
     b          = genPlayer (getCards nGen c2) c2 l2,
-    weather    = [],
+    weather    = (False, False, False),
     roundScore = (0, 0),
     isATurn    = True,
     randomSeed = boardGen

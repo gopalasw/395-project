@@ -1,6 +1,7 @@
 module Game.AbilityEffects where
 
 import Grammar.Grammar
+import Grammar.Board
 import Grammar.PrettyPrint
 import Cards.Cards
 import Game.Basics
@@ -37,19 +38,27 @@ evalAbility board (c@(CUnit _ _ ability _)) = evalAbility' ability
     evalAbility' Scorch = return $ evalScorch board 1
     evalAbility' Spy = return $ evalSpy board c
     evalAbility' (Hero ability) = evalAbility' ability
-    evalAbility' Medic = return $ updateCurPlayer board
-                          (drawFromUsed (randomSeed board) 1)
+    evalAbility' Medic = do
+      card <- getCardHelper cardsPlayerUsed getDrawIndex
+      return $ updateCurPlayer board $ updateUsed card
     evalAbility' Agile = do
       r <- getRow
       return $ updateCurPlayer board (updateRow c r)
     evalAbility' Muster = return $ updateCurPlayer board (muster c)
+    evalAbility' _ = return board
+    cardsPlayerUsed =
+      if isATurn board then
+        (usedCards $ a board)
+      else
+        (usedCards $ b board)
+evalAbility board (c@(CSpecial ability)) = evalAbility' ability
+  where
     evalAbility' Decoy = do
       card <- getCardHelper cardsOnPlayersBoard getSwapIndex
       return $ updateCurPlayer board $ updateDecoy card c
     evalAbility' Horn = do
       r <- getRow
       return $ updateCurPlayer board (updateRow c r)
-    evalAbility' _ = return board
     cardsOnPlayersBoard =
       if isATurn board then
         (cardsOnBoard $ a board)
@@ -58,14 +67,57 @@ evalAbility board (c@(CUnit _ _ ability _)) = evalAbility' ability
 evalAbility board (CLeader leader) = evalLeader leader
   where
     evalLeader SteelForged = return $ evalScorch board 3
-    evalLeader NorthCommander = undefined
-    evalLeader KingTemeria = undefined
-    evalLeader Relentless = undefined
-    evalLeader WhiteFlame = undefined
-    evalLeader EmperorNilfgaard = undefined
-    evalLeader ImperialMajesty = undefined
+    evalLeader NorthCommander =
+      return $ updateWeather board clear
+    evalLeader KingTemeria =
+      return $ playWeather board fog
+    evalLeader Relentless = do
+      card <- getCardHelper cardsOppUsed getDrawIndex
+      return $ updateOppPlayer (updateCurPlayer board $ addToHand card)
+                               (removeCardFromUsed card)
+    evalLeader EmperorNilfgaard = do
+      peekOpp (randomSeed board) oppHand 3
+      return board
+    evalLeader ImperialMajesty =
+      return $ playWeather board rain
     evalLeader _ = return board
+    cardsOppUsed =
+      if isATurn board then
+        (usedCards $ b board)
+      else
+        (usedCards $ a board)
+    oppHand =
+      if isATurn board then
+        (cardsInHand $ b board)
+      else
+        (cardsInHand $ a board)
 evalAbility board _ = return board
+
+peekOpp :: StdGen -> [Card] -> Int -> IO ()
+peekOpp seed cards num =
+  putStrLn $ show $ map (getName) randomCards
+  where
+    randomCards =
+      case drawCardsR seed num cards of
+      (Just drew, left) -> drew
+      (Nothing,   left) -> []
+
+playFromDeck :: Card -> Player -> Player
+playFromDeck c p =
+  p { cardsOnBoard = c : (cardsOnBoard p), cardsLeft = delete c (cardsLeft p) }
+
+playWeather :: Board -> Card -> Board
+playWeather board card =
+  if elem fog deck then
+    updateCurPlayer (updateWeather board card) (playFromDeck card)
+  else
+    board
+  where
+    deck =
+      if isATurn board then
+        (cardsLeft $ a board)
+      else
+        (cardsLeft $ b board)
 
 updateRow :: Card -> Row -> Player -> Player
 updateRow (c@(CUnit name _ ability damage)) row p =
@@ -74,6 +126,10 @@ updateRow (c@(CUnit name _ ability damage)) row p =
 updateDecoy :: Card -> Card -> Player -> Player
 updateDecoy c decoy p =
   p { cardsOnBoard = decoy : (delete c (cardsOnBoard p)), cardsInHand = delete decoy (cardsInHand p) }
+
+updateUsed :: Card -> Player -> Player
+updateUsed c p =
+  p { cardsInHand = c : (cardsInHand p), usedCards = delete c (usedCards p) }
 
 evalScorch :: Board -> Row -> Board
 evalScorch board r =
@@ -89,21 +145,25 @@ evalScorch board r =
 
 
 evalSpy :: Board -> Card -> Board
-evalSpy board spy = updateCurPlayer (updateOppPlayer board (playSpy spy)) ((removeSpy spy) . (drawFromUsed (randomSeed board) 2))
+evalSpy board spy = updateCurPlayer (updateOppPlayer board (playCard spy)) ((removeCard spy) . (drawFromUsed (randomSeed board) 2))
 
-
-playSpy :: Card -> Player -> Player
-playSpy card p =
+playCard :: Card -> Player -> Player
+playCard card p =
   p { cardsOnBoard = card : (cardsOnBoard p) }
 
+removeCard :: Card -> Player -> Player
+removeCard card p =
+  p { cardsOnBoard = delete card (cardsOnBoard p) }
 
-removeSpy :: Card -> Player -> Player
-removeSpy spy p =
-  p { cardsOnBoard = delete spy (cardsOnBoard p) }
+removeCardFromUsed :: Card -> Player -> Player
+removeCardFromUsed card p =
+  p { usedCards = delete card (usedCards p) }
 
+addToHand :: Card -> Player -> Player
+addToHand card p =
+  p { cardsInHand = card : (cardsInHand p) }
 
 drawFromUsed :: StdGen -> Int -> Player -> Player
-
 drawFromUsed seed n p =
   p { cardsInHand = (fst cards) ++ (cardsInHand p),
       usedCards = snd cards }
@@ -137,27 +197,3 @@ muster c p = p { cardsOnBoard = (cardsOnBoard p) ++ musterCards,
                     cardsLeft    = filter (c /=) (cardsLeft p),
                     cardsInHand  = filter (c /=) (cardsInHand p) }
   where musterCards = filter (c ==) ((cardsLeft p) ++ (cardsInHand p))
-
-{-
-
-data Leader =
-  | NorthCommander -- Clear any Weather effects
-  | KingTemeria -- Pick a Fog card from your deck and play it immediately
-  | Relentless -- Draw card from opp discard pile
-  | WhiteFlame -- Cancel opp Leader ability
-  | EmperorNilfgaard -- Look at 3 random cards of opp hand
-  | ImperialMajesty -- Pick a rain card from deck and play immediately
-  | Canceled -- If ability has been canceled (by WhiteFlame)
-  deriving (Show, Eq)
-
-data Ability =
-  | Hero Ability -- immune to abilities/special effects, has another ability 
-  | Decoy -- take card on board back into hand, replace it with the decoy
-  deriving (Show, Eq)
-
-data Country =
-    Northern -- Draw extra card from deck after you win a round
-  | Nilfgaard -- Win the game if it is a draw
-  deriving (Show, Eq)
-
--}

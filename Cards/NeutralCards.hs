@@ -35,20 +35,6 @@ avallac = CUnit "Avallac’h" 1 (Hero Spy) 0
 --decoy :: Card
 --decoy = CUnit "Decoy" 
 
--- there are 3 of each weather card
-frost :: Card
-frost = CWeather "Biting Frost" 1
-
-fog :: Card
-fog = CWeather "Impenetrable Fog" 2
-
-rain :: Card
-rain = CWeather "Torrential Rain" 3
-
-clear :: Card
-clear = CWeather "Clear Weather" 0
-
-
 {-
 Decoy Gwent Card  Decoy —-  —-  —-  20  Bought from Trader  Velen Gwent Quest: Collect ’em all! Quartermaster’s, Baron’s Store, Crow’s Perch
 Decoy Gwent Card  Decoy —-  —-  —-  20  Bought from Trader  Novigrad (Gustfields) Gwent Quest: Collect ’em all! From a Trader at Seven Cats Inn

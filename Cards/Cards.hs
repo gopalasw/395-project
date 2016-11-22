@@ -44,3 +44,16 @@ nilfgaardCards = [letho, menno, morvran, tibor,
                   emissary, emissary,
                   impera, impera, impera, impera,
                   nausicaa, nausicaa, nausicaa] ++ neutralCards
+
+-- there are 3 of each weather card
+frost :: Card
+frost = CWeather "Biting Frost" 1
+
+fog :: Card
+fog = CWeather "Impenetrable Fog" 2
+
+rain :: Card
+rain = CWeather "Torrential Rain" 3
+
+clear :: Card
+clear = CWeather "Clear Weather" 0

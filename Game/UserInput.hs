@@ -16,6 +16,9 @@ getCardHelper cs f = do
 getPlayIndex :: [Card] -> IO Int
 getPlayIndex = getIndex "Which card do you want to play?"
 
+getDrawIndex :: [Card] -> IO Int
+getDrawIndex = getIndex "Which card do you want to draw?"
+
 getSwapIndex :: [Card] -> IO Int
 getSwapIndex = getIndex "Which card do you want to swap?"
 
