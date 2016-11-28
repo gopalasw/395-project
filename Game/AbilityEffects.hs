@@ -26,9 +26,9 @@ abilityDamage board cards card = ability card
   where
     ability (CUnit _ row Morale _) = length (filter (cardInRow row) cards) - 1
     ability (c@(CUnit _ row Bond damage)) = damage * (length (filter (c ==) cards) - 1)
-    ability (CUnit _ r Horn _) = getTotalDamage (filter (cardInRow r) cards)
+    ability (CUnit _ r Horn _) = getTotalDamage (filter (cardInRow r) cards) (weather board)
     ability (CUnit name row (Hero a) damage) = ability (CUnit name row a damage)
-    ability (CLeader Siegemaster) = getTotalDamage (filter (cardInRow 3) cards)
+    ability (CLeader Siegemaster) = getTotalDamage (filter (cardInRow 3) cards) (weather board)
     ability _ = 0
 
 
@@ -133,7 +133,7 @@ updateUsed c p =
 
 evalScorch :: Board -> Row -> Board
 evalScorch board r =
-  if (getTotalDamage cardsInRow >= 10) then
+  if ((getTotalDamage cardsInRow (weather board)) >= 10) then
     updateOppPlayer board (discardMaxCard r)
   else
     board
@@ -186,7 +186,7 @@ maxDamageCard (card:rem) = maxDamage rem card
   where
     maxDamage [] max = max
     maxDamage (c:cs) max =
-      if (getDamage max < getDamage c) then
+      if (getDamage Nothing max < getDamage Nothing c) then
         maxDamage cs c
       else
         maxDamage cs max

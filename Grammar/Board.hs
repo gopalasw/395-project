@@ -6,13 +6,14 @@ import System.Random
 
 data Board = Board { a :: Player,
                      b :: Player,
-                     weather :: (Bool, Bool, Bool),
+                     weather :: Weather,
                      roundScore :: (Int, Int),
                      isATurn :: Bool,
                      randomSeed :: StdGen }
                    deriving (Show)
 
 data ABPlayer = A | B
+type Weather = (Bool, Bool, Bool)
 
 getPlayer :: Board -> ABPlayer -> Player
 getPlayer (Board p1 _  _ _ _ _) A = p1
@@ -31,3 +32,4 @@ updateWeather board (c@(CWeather _ r)) = board { weather = updateRow (weather bo
         2         -> (x, True, z)
         3         -> (x, y, True)
         otherwise -> (x, y, z)
+updateWeather board _ = board

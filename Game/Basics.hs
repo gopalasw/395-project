@@ -55,13 +55,22 @@ removeCardIndexTest =
   (removeCardIndex 3 deck == [geralt, cirilla, vesemir, triss])
   where deck = (take 5 neutralCards)
 
-getTotalDamage :: [Card] -> Int
-getTotalDamage ls =
-   foldl (+) 0 (map getDamage ls)
 
-getDamage :: Card -> Int
-getDamage (CUnit _ _ _ d) = d
-getDamage _               = 0
+getTotalDamage :: [Card] -> Weather -> Int
+getTotalDamage ls weather =
+   foldl (+) 0 (map (getDamage (Just weather)) ls)
+
+getDamage :: (Maybe Weather) -> Card -> Int
+getDamage (Just weather) (CUnit _ r _ d) =
+  if hasWeather r weather then 1 else d
+getDamage Nothing (CUnit _ _ _ d) = d
+getDamage _ _ = 0
+
+hasWeather :: Row -> Weather -> Bool
+hasWeather 1 (True, _, _) = True
+hasWeather 2 (_, True, _) = True
+hasWeather 3 (_, _, True) = True
+hasWeather _ _ = False
 
 -- updates current player on the board with a player update function
 updateCurPlayer :: Board -> (Player -> Player) -> Board

@@ -30,19 +30,20 @@ roundOver (Board p1 p2 _ _ _ _) =
     isPass p = (head $ cardsOnBoard $ p) == CPass
 
 evaluateTurn :: Board -> Board
-evaluateTurn currentB@(Board p1 p2 _ _ pTurn _) =
+evaluateTurn currentB@(Board p1 p2 w _ pTurn _) =
   currentB {
     roundScore = (totalDamage p1, totalDamage p2),
     isATurn    = not pTurn
   }
   where
-    totalDamage p = getTotalDamage (cardsOnBoard p)
+    totalDamage p = getTotalDamage (cardsOnBoard p) w
 
 playTurn :: IO Board -> IO Board
 playTurn board = do
   board' <- board
   card <- getCardHelper ((getCurHand board') ++ [CPass]) getPlayIndex
-  evalAbility (updateCurPlayer board' (updatePlayedCard card)) card
+  evalAbility (updateCurPlayer (updateWeather board' card)
+                               (updatePlayedCard card)) card
   where
     getCurHand board' =
       if isATurn board' then
@@ -54,6 +55,8 @@ updatePlayedCard :: Card -> Player -> Player
 updatePlayedCard CPass p =
   p { cardsOnBoard = CPass : (cardsOnBoard p),
       cardsInHand  = cardsInHand p }
+updatePlayedCard (c@(CWeather _ _)) p =
+  p { cardsInHand  = delete c (cardsInHand p) }
 updatePlayedCard card p =
   p { cardsOnBoard = card : (cardsOnBoard p),
       cardsInHand  = delete card (cardsInHand p)}
