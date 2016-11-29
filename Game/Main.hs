@@ -14,6 +14,7 @@ import Data.Time.Clock
 main = do
   t <- getCurrentTime
   board <- pure $ brd t
+  putStrLn $ prettyPrintBoard board
   board <- roundSeq $ roundSeq $ pure board
   if (gameOver board)
   then
