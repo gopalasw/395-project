@@ -6,6 +6,8 @@ import Cards.Cards
 
 prettyPrintBoard :: Board -> String
 prettyPrintBoard board =
+  
+  "-------------"++ curPlayer ++  "------------- \n" ++
   "Board: \n" ++ "Player A\n Score: " ++
   (show playerAScore) ++ "\n" ++ playerACards ++
   "\nPlayer B\n Score: " ++ (show playerBScore) ++
@@ -15,8 +17,10 @@ prettyPrintBoard board =
     playerBCards = prettyPrintCards (cardsOnBoard (b board))
     playerAScore = fst (roundScore board)
     playerBScore = snd (roundScore board)
-    currentHand  = if (isATurn board) then (cardsInHand (a board)) else (cardsInHand (b board))
-
+    currentHand  = if (isATurn board) then (cardsInHand (a board)) 
+                                      else (cardsInHand (b board))
+    curPlayer    = if (isATurn board) then ("Player A's turn") 
+                                      else ("Player B's turn")
 
 prettyPrintStatus :: Board -> String
 prettyPrintStatus board =
