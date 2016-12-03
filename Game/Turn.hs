@@ -41,7 +41,7 @@ evaluateTurn currentB@(Board p1 p2 w _ pTurn _) =
 playTurn :: IO Board -> IO Board
 playTurn board = do
   board' <- board
-  card <- getCardHelper ((getCurHand board') ++ [CPass]) getPlayIndex
+  card <- getCardHelper ((getCurHand board') ++ [curLeader, CPass]) getPlayIndex
   evalAbility (updateCurPlayer (updateWeather board' card)
                                (updatePlayedCard card)) card
   where
@@ -50,6 +50,11 @@ playTurn board = do
         (cardsInHand $ a board')
       else
         (cardsInHand $ b board')
+    curLeader =
+      if isATurn board' then
+        (leader $ a board')
+      else
+        (leader $ b board')
 
 updatePlayedCard :: Card -> Player -> Player
 updatePlayedCard CPass p =
@@ -57,6 +62,7 @@ updatePlayedCard CPass p =
       cardsInHand  = cardsInHand p }
 updatePlayedCard (c@(CWeather _ _)) p =
   p { cardsInHand  = delete c (cardsInHand p) }
+updatePlayedCard (CLeader _) = p
 updatePlayedCard card p =
   p { cardsOnBoard = card : (cardsOnBoard p),
       cardsInHand  = delete card (cardsInHand p)}
