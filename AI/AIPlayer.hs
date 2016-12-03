@@ -34,7 +34,7 @@ roundScoreToIA (i1, i2) =  [i1, i2]
 
 thisPlayerToIA :: Player -> [Int]
 thisPlayerToIA p = handArr ++ leftArr ++ onBoardArr ++ usedArr ++ livesArr
-                   ++ leader ++ country
+                   ++ leaderP ++ countryP
   where
     initCardsToIA :: [Card] -> [Int]
     initCardsToIA cs = cardsToIA initialIA cs
@@ -43,10 +43,22 @@ thisPlayerToIA p = handArr ++ leftArr ++ onBoardArr ++ usedArr ++ livesArr
     onBoardArr = initCardsToIA $ cardsOnBoard p
     usedArr = initCardsToIA $ usedCards p
     livesArr = lives p
-    leader :: [Int]
-    leader = (hashFun (leader p)) : []
-    country = case country p of
+    leaderP = (hashFun (leader p)) : []
+    countryP = case country p of
                 Nilfgaard -> [0] 
                 Northern  -> [1]
+
+otherPlayerToIA :: Player -> [Int]
+otherPlayerToIA p = onBoardArr ++ usedArr
+  where
+    initCardsToIA :: [Card] -> [Int]
+    initCardsToIA cs = cardsToIA initialIA cs
+    onBoardArr = initCardsToIA $ cardsOnBoard p
+    usedArr = initCardsToIA $ usedCards p
+    leaderP = (hashFun (leader p)) : []
+    countryP = case country p of
+                Nilfgaard -> [0]
+                Northern  -> [1]
+
 
 
