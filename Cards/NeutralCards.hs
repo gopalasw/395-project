@@ -32,17 +32,11 @@ villen = CUnit "Villentretenmerth" 1 Scorch 7
 avallac :: Card
 avallac = CUnit "Avallac’h" 1 (Hero Spy) 0
 
---decoy :: Card
---decoy = CUnit "Decoy" 
+decoy :: Card
+decoy = CSpecial Decoy
 
-{-
-Decoy Gwent Card  Decoy —-  —-  —-  20  Bought from Trader  Velen Gwent Quest: Collect ’em all! Quartermaster’s, Baron’s Store, Crow’s Perch
-Decoy Gwent Card  Decoy —-  —-  —-  20  Bought from Trader  Novigrad (Gustfields) Gwent Quest: Collect ’em all! From a Trader at Seven Cats Inn
-Decoy Gwent Card  Decoy —-  —-  —-  50  Bought from Trader  White Orchard Gwent Quest: Collect ’em all! From an Innkeeperess at White Orchard Tavern
-Commander’s Horn Gwent Card Commander’s Horn  —-  —-  —-  10  Bought from Trader  Velen Gwent Quest: Collect ’em all! From an Innkeeper at Inn at the Crossroads
-Commander’s Horn Gwent Card Commander’s Horn  —-  —-  —-  10  Bought from Trader  Novigrad  Gwent Quest: Collect ’em all! From a Store Trader at Passiflora
-Commander’s Horn Gwent Card Commander’s Horn  —-  —-  —-  20  Bought from Trader  Novigrad (Oxenfurt) Gwent Quest: Collect ’em all! From Stjepan at The Alchemy Inn, Oxenfurt
-Torch Gwent Card  Scorch  —-  —-  —-  50  Bought from Trader  Novigrad (Grassy Knoll) Gwent Quest: Collect ’em all! From an Innkeeper, Cunny of the Goose
-Torch Gwent Card  Scorch  —-  —-  —-  50  Bought from Trader  Skellige  Gwent Quest: Collect ’em all! From an Innkeeper at New Port Inn, Kaer Trolde Harbor
-Torch Gwent Card  Scorch  —-  —-  —-  50  Bought from Trader  Skellige  Gwent Quest: Collect ’em all! From an Innkeeper at Urialla Village, An Skellig
--}
+horn :: Card
+horn = CSpecial Horn
+
+torch :: Card
+torch = CSpecial Scorch

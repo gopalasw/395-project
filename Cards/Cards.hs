@@ -13,7 +13,10 @@ cardInRow r _ = False
 neutralCards :: [Card]
 neutralCards = [geralt, cirilla, vesemir,
                 yennefer, triss, dandelion,
-                zoltan, emiel, villen, avallac] ++ weatherCards
+                zoltan, emiel, villen, avallac,
+                decoy, decoy, decoy,
+                torch, torch, torch,
+                horn, horn, horn] ++ weatherCards
 
 weatherCards :: [Card]
 weatherCards = concat $ map (take 3 . repeat) [frost, fog, rain, clear]

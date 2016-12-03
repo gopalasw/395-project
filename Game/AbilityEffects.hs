@@ -59,6 +59,7 @@ evalAbility board (c@(CSpecial ability)) = evalAbility' ability
     evalAbility' Horn = do
       r <- getRow
       return $ updateCurPlayer board (updateRow c r)
+    evalAbility' Scorch = return $ evalScorch board 1
     cardsOnPlayersBoard =
       if isATurn board then
         (cardsOnBoard $ a board)
