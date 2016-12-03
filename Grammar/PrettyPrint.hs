@@ -6,6 +6,9 @@ import Cards.Cards
 
 prettyPrintBoard :: Board -> String
 prettyPrintBoard board =
+
+  "-------------"++ curPlayer ++  "------------- \n" ++
+  "Current weather: " ++ prettyPrintWeather (weather board) ++
   "Board: \n" ++ "Player A\n Score: " ++
   (show playerAScore) ++ "\n" ++ playerACards ++
   "\nPlayer B\n Score: " ++ (show playerBScore) ++
@@ -15,8 +18,10 @@ prettyPrintBoard board =
     playerBCards = prettyPrintCards (cardsOnBoard (b board))
     playerAScore = fst (roundScore board)
     playerBScore = snd (roundScore board)
-    currentHand  = if (isATurn board) then (cardsInHand (a board)) else (cardsInHand (b board))
-
+    currentHand  = if (isATurn board) then (cardsInHand (a board))
+                                      else (cardsInHand (b board))
+    curPlayer    = if (isATurn board) then ("Player A's turn")
+                                      else ("Player B's turn")
 
 prettyPrintStatus :: Board -> String
 prettyPrintStatus board =
@@ -40,6 +45,18 @@ prettyPrintCards cards = concat $ zipWith prettyPrintRow [0..3] rows
     twos   = filter (cardInRow 2) cards
     threes = filter (cardInRow 3) cards
     rows   = [zeroes, ones, twos, threes]
+
+prettyPrintWeather :: Weather -> String
+prettyPrintWeather w =
+  case w of
+    (False, False, False) -> "No weather\n"
+    (True, False, False)  -> "Biting Frost (1)\n"
+    (False, True, False)  -> "Impenetrable Fog (2)\n"
+    (False, False, True)  -> "Torrential Rain (3)\n"
+    (True, True, False)   -> "Biting Frost and Impenetrable Fog (1, 2)\n"
+    (False, True, True)   -> "Impenetrable Fog and Torrential Rain (2, 3)\n"
+    (True, False, True)   -> "Biting Frost and Torrential Rain (1, 3)\n"
+    (True, True, True)    -> "Biting Frost, Impenetrable Fog and Torrential Rain (1,2,3)\n"
 
 prettyPrintRow :: Row -> [Card] -> String
 prettyPrintRow r c = show r ++ ": " ++ (concat (map prettyPrintCard c)) ++ "\n"
