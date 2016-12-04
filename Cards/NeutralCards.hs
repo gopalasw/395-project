@@ -33,10 +33,10 @@ avallac :: Card
 avallac = CUnit "Avallac’h" 1 (Hero Spy) 0
 
 decoy :: Card
-decoy = CSpecial Decoy
+decoy = CSpecial "Decoy" 0 Decoy
 
 horn :: Card
-horn = CSpecial Horn
+horn = CSpecial "Commander's Horn" 0 Horn
 
 torch :: Card
-torch = CSpecial Scorch
+torch = CSpecial "Torch" 1 Scorch

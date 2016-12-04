@@ -32,6 +32,7 @@ prettyPrintStatus board =
 
 prettyPrintCard :: Card -> String
 prettyPrintCard (CWeather n row)   = n ++ " "
+prettyPrintCard (CSpecial n _ a)  = "(" ++ n ++ " " ++ (show a) ++ ") "
 prettyPrintCard (CUnit n _ a dmg) = "(" ++ n ++ " " ++ (show a) ++ " (D: " ++ (show dmg) ++ ")) "
 prettyPrintCard (CLeader l)        = prettyPrintLeader l
 prettyPrintCard (CPass)            = "Passed"

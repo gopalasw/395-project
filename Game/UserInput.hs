@@ -44,5 +44,6 @@ getLineInt = do
 getName :: Card -> String
 getName (CWeather n _)  = n
 getName (CUnit n _ _ _) = n
+getName (CSpecial n _ _)  = n
 getName (CLeader l)     = show l
 getName CPass           = "Pass"

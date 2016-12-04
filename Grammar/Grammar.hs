@@ -12,7 +12,7 @@ data Player = Player { cardsInHand :: [Card],
 
 data Card =
     CWeather Name Row
-  | CSpecial Ability
+  | CSpecial Name Row Ability
   | CUnit Name Row Ability Damage
   | CLeader Leader
   | CPass

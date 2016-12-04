@@ -29,6 +29,7 @@ abilityDamage board cards card = ability card
     ability (CUnit _ r Horn _) = getTotalDamage (filter (cardInRow r) cards) (weather board)
     ability (CUnit name row (Hero a) damage) = ability (CUnit name row a damage)
     ability (CLeader Siegemaster) = getTotalDamage (filter (cardInRow 3) cards) (weather board)
+    ability (CSpecial _ r Horn) = getTotalDamage (filter (cardInRow r) cards) (weather board)
     ability _ = 0
 
 
@@ -51,7 +52,7 @@ evalAbility board (c@(CUnit _ _ ability _)) = evalAbility' ability
         (usedCards $ a board)
       else
         (usedCards $ b board)
-evalAbility board (c@(CSpecial ability)) = evalAbility' ability
+evalAbility board (c@(CSpecial _ _ ability)) = evalAbility' ability
   where
     evalAbility' Decoy = do
       card <- getCardHelper cardsOnPlayersBoard getSwapIndex
@@ -123,10 +124,12 @@ playWeather board card =
 updateRow :: Card -> Row -> Player -> Player
 updateRow (c@(CUnit name _ ability damage)) row p =
   p { cardsOnBoard = (CUnit name row ability damage) : (delete c (cardsOnBoard p)) }
+updateRow (c@(CSpecial name _ ability)) row p =
+  p { cardsOnBoard = (CSpecial name row ability) : (delete c (cardsOnBoard p)) }
 
 updateDecoy :: Card -> Card -> Player -> Player
-updateDecoy c decoy p =
-  p { cardsOnBoard = decoy : (delete c (cardsOnBoard p)), cardsInHand = delete decoy (cardsInHand p) }
+updateDecoy (c@(CUnit _ row _ _)) decoy p =
+  p { cardsOnBoard = (CSpecial "Decoy" row Decoy) : (delete c (cardsOnBoard p)), cardsInHand = c : delete decoy (cardsInHand p)}
 
 updateUsed :: Card -> Player -> Player
 updateUsed c p =
