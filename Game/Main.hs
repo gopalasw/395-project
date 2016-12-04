@@ -1,4 +1,4 @@
-module Game.Main where
+module Main where
 
 import Cards.Cards
 import Game.Basics
@@ -15,6 +15,13 @@ main = do
   t <- getCurrentTime
   board <- pure $ brd t
   putStrLn $ prettyPrintBoard board
+  toss <- randomRIO (1,2) :: IO Int 
+  if (toss == 1) then do
+    board <- pure $ board { isATurn = True }
+    putStrLn "Player A will go first."
+  else do
+    board <- pure board { isATurn = False}
+    putStrLn "Player B will go first."
   board <- roundSeq $ roundSeq $ pure board
   if (gameOver board)
   then
@@ -27,6 +34,8 @@ main = do
     seed :: UTCTime -> StdGen
     seed t = mkStdGen $ floor $ utctDayTime t
     brd t = initBoard (seed t) (Northern, Northern) ((CLeader Relentless), (CLeader Canceled))
+
+
 
 
 gameEnd :: Board -> String
