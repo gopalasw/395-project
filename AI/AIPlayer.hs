@@ -19,16 +19,6 @@ addByIndex ls index = take index  ls ++ (
                       (head (drop index ls) + 1) :
                       drop (index + 1) ls)
 
-weatherToIA :: Weather -> [Int]
-weatherToIA (b1, b2, b3) = [bToI b1, bToI b2, bToI b3]
-  where
-    bToI :: Bool -> Int
-    bToI True  = 1
-    bToI False = 0
-
-roundScoreToIA :: (Int, Int) -> [Int]
-roundScoreToIA (i1, i2) =  [i1, i2]
-
 thisPlayerToIA :: Player -> [Int]
 thisPlayerToIA p = handArr ++ leftArr ++ onBoardArr ++ usedArr ++ livesArr
                    ++ leaderP ++ countryP
