@@ -16,8 +16,10 @@ turnLoop board = do
   b <- board
   b <- playTurn $ pure b
   b <- pure $ evaluateTurn b
-  putStrLn $ prettyPrintBoard b
-  if not (roundOver b) then turnLoop (pure b) else putStrLn "\nRound over.\n\n" >> return b
+  putStrLn $ "\n" ++  prettyPrintBoard b
+  if not (roundOver b) 
+  then turnLoop (pure b) 
+  else putStrLn "\n----------Round over----------\n\n" >> return b
   -- TODO Print who won the round.
 
 roundOver :: Board -> Bool
