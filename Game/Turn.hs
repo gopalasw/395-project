@@ -2,7 +2,7 @@ module Game.Turn where
 
 import Data.List
 import Text.Read
-
+import Control.Applicative
 import Grammar.Grammar
 import Grammar.Board
 import Grammar.PrettyPrint

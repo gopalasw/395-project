@@ -187,10 +187,13 @@ drawFromUsed seed n p =
 
 discardMaxCard :: Row -> Player -> Player
 discardMaxCard r p =
-  p { cardsOnBoard = cards', usedCards = maxCard : (usedCards p) }
+	if (cardsInRow == []) then p
+	else
+		p { cardsOnBoard = cards', usedCards = maxCard : (usedCards p) }
   where
     cards' = delete maxCard (cardsOnBoard p)
-    maxCard = maxDamageCard (filter (cardInRow r) (cardsOnBoard p))
+    cardsInRow = filter (cardInRow r) (cardsOnBoard p)
+    maxCard = maxDamageCard cardsInRow
 
 
 maxDamageCard :: [Card] -> Card

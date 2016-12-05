@@ -1,5 +1,6 @@
 module Game.Round where
 
+import Control.Applicative
 import Grammar.Board
 import Grammar.Grammar
 import Grammar.PrettyPrint
