@@ -25,7 +25,7 @@ getSwapIndex = getIndex "Which card do you want to swap?"
 getRow :: IO Int
 getRow = do
   putStrLn "Which row do you want to play it on?"
-  getLineInt
+  (fmap (+1) getLineInt)
 
 getIndex :: String -> [Card] -> IO Int
 getIndex s cs = do

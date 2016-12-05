@@ -20,11 +20,10 @@ cardsAbilityDamage board = board { roundScore = ((fst $ roundScore board) + aDam
     aDamage = sum $ map (abilityDamage board aCards) aCards
     bDamage = sum $ map (abilityDamage board bCards) bCards
 
-
 abilityDamage :: Board -> [Card] -> Card -> Int
 abilityDamage board cards card = ability card
   where
-    ability (CUnit _ row Morale _) = length (filter (cardInRow row) cards) - 1
+    ability (CUnit _ row Morale _) = length (filter (\c -> (cardInRow row c) && (isUnit c)) cards) - 1
     ability (c@(CUnit _ row Bond damage)) = damage * (length (filter (c ==) cards) - 1)
     ability (CUnit _ r Horn _) = getTotalDamage (filter (cardInRow r) cards) (weather board)
     ability (CUnit name row (Hero a) damage) = ability (CUnit name row a damage)
@@ -39,9 +38,12 @@ evalAbility board (c@(CUnit _ _ ability _)) = evalAbility' ability
     evalAbility' Scorch = return $ evalScorch board 1
     evalAbility' Spy = return $ evalSpy board c
     evalAbility' (Hero ability) = evalAbility' ability
-    evalAbility' Medic = do
-      card <- getCardHelper cardsPlayerUsed getDrawIndex
-      return $ updateCurPlayer board $ updateUsed card
+    evalAbility' Medic =
+      if cardsPlayerUsed == [] then
+        putStrLn "No cards in used pile. " >> return board
+      else do
+        card <- getCardHelper cardsPlayerUsed getDrawIndex
+        return $ updateCurPlayer board $ updateUsed card
     evalAbility' Agile = do
       r <- getRow
       return $ updateCurPlayer board (updateRow c r)
@@ -54,9 +56,12 @@ evalAbility board (c@(CUnit _ _ ability _)) = evalAbility' ability
         (usedCards $ b board)
 evalAbility board (c@(CSpecial _ _ ability)) = evalAbility' ability
   where
-    evalAbility' Decoy = do
-      card <- getCardHelper cardsOnPlayersBoard getSwapIndex
-      return $ updateCurPlayer board $ updateDecoy card c
+    evalAbility' Decoy =
+      if cardsOnPlayersBoard == [] then
+        putStrLn "No cards on board. " >> return board
+      else do
+        card <- getCardHelper cardsOnPlayersBoard getSwapIndex 
+        return $ updateCurPlayer board $ updateDecoy card c
     evalAbility' Horn = do
       r <- getRow
       return $ updateCurPlayer board (updateRow c r)
@@ -73,9 +78,12 @@ evalAbility board (CLeader leader) = evalLeader leader
       return $ updateWeather board clear
     evalLeader KingTemeria =
       return $ playWeather board fog
-    evalLeader Relentless = do
-      card <- getCardHelper cardsOppUsed getDrawIndex
-      return $ updateOppPlayer (updateCurPlayer board $ addToHand card)
+    evalLeader Relentless =
+      if cardsOppUsed == [] then
+        putStrLn "No cards in used pile. " >> return board
+      else do
+        card <- getCardHelper cardsOppUsed getDrawIndex
+        return $ updateOppPlayer (updateCurPlayer board $ addToHand card)
                                (removeCardFromUsed card)
     evalLeader EmperorNilfgaard = do
       peekOpp (randomSeed board) oppHand 3
@@ -129,7 +137,7 @@ updateRow (c@(CSpecial name _ ability)) row p =
 
 updateDecoy :: Card -> Card -> Player -> Player
 updateDecoy (c@(CUnit _ row _ _)) decoy p =
-  p { cardsOnBoard = (CSpecial "Decoy" row Decoy) : (delete c (cardsOnBoard p)), cardsInHand = c : delete decoy (cardsInHand p)}
+  p { cardsOnBoard = (CSpecial "Decoy" row Decoy) : (delete decoy (delete c (cardsOnBoard p))), cardsInHand = c : delete decoy (cardsInHand p)}
 
 updateUsed :: Card -> Player -> Player
 updateUsed c p =
@@ -201,3 +209,8 @@ muster c p = p { cardsOnBoard = (cardsOnBoard p) ++ musterCards,
                     cardsLeft    = filter (c /=) (cardsLeft p),
                     cardsInHand  = filter (c /=) (cardsInHand p) }
   where musterCards = filter (c ==) ((cardsLeft p) ++ (cardsInHand p))
+
+
+isUnit :: Card -> Bool
+isUnit (CUnit _ _ _ _) = True
+isUnit _ = False

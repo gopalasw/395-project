@@ -7,6 +7,7 @@ import Cards.NilfgaardCards
 
 cardInRow :: Row -> Card -> Bool
 cardInRow r (CUnit _ row _ _) = r == row
+cardInRow r (CSpecial _ row _) = r == row
 cardInRow r (CWeather _ row) = r == row
 cardInRow r _ = False
 

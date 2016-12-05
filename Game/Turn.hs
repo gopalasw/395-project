@@ -31,7 +31,7 @@ roundOver (Board p1 p2 _ _ _ _) =
 
 evaluateTurn :: Board -> Board
 evaluateTurn currentB@(Board p1 p2 w _ pTurn _) =
-  currentB {
+  cardsAbilityDamage $ currentB {
     roundScore = (totalDamage p1, totalDamage p2),
     isATurn    = not pTurn
   }
