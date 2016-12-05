@@ -14,17 +14,17 @@ getCardHelper cs f = do
     Nothing   -> putStrLn "Invalid Input " >> getCardHelper cs f
 
 getPlayIndex :: [Card] -> IO Int
-getPlayIndex = getIndex "Which card do you want to play?"
+getPlayIndex = getIndex "\nWhich card do you want to play?"
 
 getDrawIndex :: [Card] -> IO Int
-getDrawIndex = getIndex "Which card do you want to draw?"
+getDrawIndex = getIndex "\nWhich card do you want to draw?"
 
 getSwapIndex :: [Card] -> IO Int
-getSwapIndex = getIndex "Which card do you want to swap?"
+getSwapIndex = getIndex "\nWhich card do you want to swap?"
 
 getRow :: IO Int
 getRow = do
-  putStrLn "Which row do you want to play it on?"
+  putStrLn "\nWhich row do you want to play it on?"
   (fmap (+1) getLineInt)
 
 getIndex :: String -> [Card] -> IO Int

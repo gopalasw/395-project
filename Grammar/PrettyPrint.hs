@@ -7,12 +7,13 @@ import Cards.Cards
 prettyPrintBoard :: Board -> String
 prettyPrintBoard board =
 
-  "-------------"++ curPlayer ++  "------------- \n" ++
   "Current weather: " ++ prettyPrintWeather (weather board) ++
-  "Board: \n" ++ "Player A\n Score: " ++
+  "Board: \n" ++ "Player A\nScore: " ++
   (show playerAScore) ++ "\n" ++ playerACards ++
-  "\nPlayer B\n Score: " ++ (show playerBScore) ++
-  "\n" ++ playerBCards ++ "\n Current Hand:\n" ++ (prettyPrintCards currentHand)
+  "\nPlayer B\nScore: " ++ (show playerBScore) ++
+  "\n" ++ playerBCards ++ 
+  "-------------"++ curPlayer ++  "------------- \n" ++
+  "\n Current Hand:\n" ++ (prettyPrintCards currentHand)
   where
     playerACards = prettyPrintCards (cardsOnBoard (a board))
     playerBCards = prettyPrintCards (cardsOnBoard (b board))

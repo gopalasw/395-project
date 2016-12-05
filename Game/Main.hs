@@ -14,7 +14,6 @@ import Data.Time.Clock
 main = do
   t <- getCurrentTime
   board <- pure $ brd t
-  putStrLn $ prettyPrintBoard board
   toss <- randomRIO (1,2) :: IO Int 
   if (toss == 1) then do
     board <- pure $ board { isATurn = True }
@@ -22,14 +21,15 @@ main = do
   else do
     board <- pure board { isATurn = False}
     putStrLn "Player B will go first."
+  putStrLn "------------- Game Start -------------\n"
+  putStrLn $ prettyPrintBoard board
   board <- roundSeq $ roundSeq $ pure board
   if (gameOver board)
   then
     putStrLn $ gameEnd board
-    else do -- If the game isn't over, play the last round.
+  else do -- If the game isn't over, play the last round.
     board <- roundSeq $ pure board
     putStrLn $ gameEnd board
-  putStrLn $ prettyPrintBoard board
   where
     seed :: UTCTime -> StdGen
     seed t = mkStdGen $ floor $ utctDayTime t
@@ -41,8 +41,8 @@ main = do
 gameEnd :: Board -> String
 gameEnd board =
   case evalGame board of
-    (True,  False) -> "Game Over, the winner is player 1.\n"
-    (False, True)  -> "Game Over, the winner is player 2.\n"
+    (True,  False) -> "Game Over, the winner is player A.\n"
+    (False, True)  -> "Game Over, the winner is player B.\n"
     (False, False) -> "Game Over, no one wins in this game.\n"
     (True,  True)  -> error "Game error: two winners.\n"
 
