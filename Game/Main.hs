@@ -33,7 +33,7 @@ main = do
   where
     seed :: UTCTime -> StdGen
     seed t = mkStdGen $ floor $ utctDayTime t
-    brd t = initBoard (seed t) (Northern, Northern) ((CLeader Relentless), (CLeader Canceled))
+    brd t = initBoard (seed t) (Northern, Northern) ((CLeader Relentless), (CLeader NorthCommander))
 
 
 
