@@ -1,8 +1,10 @@
 module Game.Turn where
 
-import Data.List
-import Text.Read
 import Control.Applicative
+import Data.List
+import System.Random
+import Text.Read
+
 import Grammar.Grammar
 import Grammar.Board
 import Grammar.PrettyPrint
@@ -17,8 +19,8 @@ turnLoop board = do
   b <- playTurn $ pure b
   b <- pure $ evaluateTurn b
   putStrLn $ "\n" ++  prettyPrintBoard b
-  if not (roundOver b) 
-  then turnLoop (pure b) 
+  if not (roundOver b)
+  then turnLoop (pure b)
   else putStrLn "\n----------Round over----------\n\n" >> return b
   -- TODO Print who won the round.
 
@@ -40,10 +42,21 @@ evaluateTurn currentB@(Board p1 p2 w _ pTurn _) =
   where
     totalDamage p = getTotalDamage (cardsOnBoard p) w
 
+
+updateRandomSeed :: Board -> Board
+updateRandomSeed b = b { randomSeed = g }
+  where
+    seed   = randomSeed b
+    (i, g) = next seed
+
+
 playTurn :: IO Board -> IO Board
 playTurn board = do
   board' <- board
-  card <- getCardHelper ((getCurHand board') ++ [(curLeader board'), CPass]) getPlayIndex
+  card <- if isAI board'
+          then getCardAI (curHand board') (randomSeed board')
+          else getCardHelper (curHand board') getPlayIndex
+  board' <- pure $ updateRandomSeed board'
   evalAbility (updateCurPlayer (updateWeather board' card)
                                (updatePlayedCard card)) card
   where
@@ -53,10 +66,18 @@ playTurn board = do
       else
         (cardsInHand $ b board')
     curLeader board' =
-      if isATurn board' then
-        (leader $ a board')
-      else
-        (leader $ b board')
+      if isATurn board' then (leader $ a board') else (leader $ b board')
+    isAI board' = if isATurn board' then (isComp $ a board') else isComp $ b board'
+    curHand board' = (getCurHand board') ++ [(curLeader board'), CPass]
+
+
+getCardAI :: [Card] -> StdGen-> IO Card -- TODO: add a heuristic
+getCardAI d g = do
+  pure $ head s
+  where
+    (idx, _) = randomR (0, length d - 1) g
+    (f, s)   = splitAt idx d
+
 
 updatePlayedCard :: Card -> Player -> Player
 updatePlayedCard CPass p =

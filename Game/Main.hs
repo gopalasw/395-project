@@ -14,7 +14,7 @@ import Data.Time.Clock
 main = do
   t <- getCurrentTime
   board <- pure $ brd t
-  toss <- randomRIO (1,2) :: IO Int 
+  toss <- randomRIO (1,2) :: IO Int
   if (toss == 1) then do
     board <- pure $ board { isATurn = True }
     putStrLn "Player A will go first."
@@ -33,7 +33,7 @@ main = do
   where
     seed :: UTCTime -> StdGen
     seed t = mkStdGen $ floor $ utctDayTime t
-    brd t = initBoard (seed t) (Northern, Northern) ((CLeader Relentless), (CLeader NorthCommander))
+    brd t = initVersusAIBoard (seed t) (Northern, Northern) ((CLeader Relentless), (CLeader NorthCommander))
 
 
 

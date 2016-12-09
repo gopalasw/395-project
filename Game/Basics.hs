@@ -43,18 +43,6 @@ getCard _ []     = Nothing
 getCard 0 (x:xs) = Just x
 getCard i (x:xs) = getCard (i - 1) xs
 
--- Remove a card from a deck by its index
-removeCardIndex :: Int -> [Card] -> [Card]
-removeCardIndex _ []     = []
-removeCardIndex 0 (x:xs) = xs
-removeCardIndex i ls     = fst ++ (tail snd)
-  where (fst, snd) = splitAt i ls
-
-removeCardIndexTest =
-  (removeCardIndex 0 neutralCards) == (tail neutralCards) &&
-  (removeCardIndex 3 deck == [geralt, cirilla, vesemir, triss])
-  where deck = (take 5 neutralCards)
-
 
 getTotalDamage :: [Card] -> Weather -> Int
 getTotalDamage ls weather =

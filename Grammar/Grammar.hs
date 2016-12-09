@@ -7,7 +7,8 @@ data Player = Player { cardsInHand :: [Card],
                        usedCards :: [Card],
                        lives :: [Int],
                        leader :: Card,
-                       country :: Country }
+                       country :: Country,
+                       isComp :: Bool }
                      deriving (Show)
 
 data Card =

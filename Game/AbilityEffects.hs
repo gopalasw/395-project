@@ -60,7 +60,7 @@ evalAbility board (c@(CSpecial _ _ ability)) = evalAbility' ability
       if cardsOnPlayersBoard == [] then
         putStrLn "No cards on board. " >> return board
       else do
-        card <- getCardHelper cardsOnPlayersBoard getSwapIndex 
+        card <- getCardHelper cardsOnPlayersBoard getSwapIndex
         return $ updateCurPlayer board $ updateDecoy card c
     evalAbility' Horn = do
       r <- getRow
@@ -187,9 +187,8 @@ drawFromUsed seed n p =
 
 discardMaxCard :: Row -> Player -> Player
 discardMaxCard r p =
-	if (cardsInRow == []) then p
-	else
-		p { cardsOnBoard = cards', usedCards = maxCard : (usedCards p) }
+  if (cardsInRow == []) then p
+  else p { cardsOnBoard = cards', usedCards = maxCard : (usedCards p) }
   where
     cards' = delete maxCard (cardsOnBoard p)
     cardsInRow = filter (cardInRow r) (cardsOnBoard p)

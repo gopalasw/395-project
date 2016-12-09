@@ -22,6 +22,19 @@ initBoard gen (c1, c2) (l1, l2) = Board
       (_, nGen) = next gen
       (_, boardGen) = next nGen
 
+initVersusAIBoard :: StdGen -> (Country, Country) -> (Card, Card) -> Board
+initVersusAIBoard gen (c1, c2) (l1, l2) = Board
+  {
+    a          = genPlayer (getCards gen c1) c1 l1,
+    b          = genAI     (getCards nGen c2) c2 l2,
+    weather    = (False, False, False),
+    roundScore = (0, 0),
+    isATurn    = True,
+    randomSeed = boardGen
+  }
+    where
+      (_, nGen) = next gen
+      (_, boardGen) = next nGen
 
 getCards :: StdGen -> Country -> ([Card], [Card])
 getCards seed c
@@ -45,11 +58,25 @@ genPlayer (drew, left) c l =
     usedCards    = [],
     lives        = [],
     leader       = l,
-    country      = c }
+    country      = c,
+    isComp       = False }
+
+
+genAI :: ([Card], [Card]) -> Country -> Card -> Player
+genAI (drew, left) c l =
+  Player {
+    cardsInHand  = drew,
+    cardsLeft    = left,
+    cardsOnBoard = [],
+    usedCards    = [],
+    lives        = [],
+    leader       = l,
+    country      = c,
+    isComp       = True }
 
 
 swapOneCard :: Player -> StdGen -> Card -> Player
-swapOneCard p@(Player hand left _ _ _ _ country) seed c
+swapOneCard p@(Player hand left _ _ _ _ country _) seed c
   | country == Northern  =
     case drawCardR seed northernCards of
       (Just c', ls) -> p { cardsInHand = c' : (delete c (cardsInHand p)),
