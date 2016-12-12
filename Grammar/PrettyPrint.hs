@@ -11,7 +11,7 @@ prettyPrintBoard board =
   "Board: \n" ++ "Player A\nScore: " ++
   (show playerAScore) ++ "\n" ++ playerACards ++
   "\nPlayer B\nScore: " ++ (show playerBScore) ++
-  "\n" ++ playerBCards ++ 
+    "\n" ++ playerBCards ++
   "-------------"++ curPlayer ++  "------------- \n" ++
   "\n Current Hand:\n" ++ (prettyPrintCards currentHand)
   where
@@ -26,10 +26,16 @@ prettyPrintBoard board =
 
 prettyPrintStatus :: Board -> String
 prettyPrintStatus board =
-     "\nPlayer A's Lives: " ++ (show (lives $ a board))
-  ++ " Player B's Lives: " ++ (show (lives $ b board))
+     "\nPlayer A's Lives: " ++ (show livesA)
+  ++ " Player B's Lives: " ++ (show livesB)
   ++ "\n"
-
+  where
+    z = zip (lives $ a board) (lives $ b board)
+    ties = foldl (\acc x -> if x == (0, 0) then acc+1 else acc) 0 z
+    wonByA = foldl (\acc x -> if x == (1, 0) then acc+1 else acc) 0 z
+    wonByB = foldl (\acc x -> if x == (0, 1) then acc+1 else acc) 0 z
+    livesA = 2 - ties - wonByB
+    livesB = 2 - ties - wonByA
 
 prettyPrintCard :: Card -> String
 prettyPrintCard (CWeather n row)   = n ++ " "
