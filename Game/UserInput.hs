@@ -20,7 +20,8 @@ getDrawIndex :: [Card] -> IO Int
 getDrawIndex = getIndex "\nWhich card do you want to draw?"
 
 getSwapIndex :: [Card] -> IO Int
-getSwapIndex = getIndex "\nWhich card do you want to swap?"
+getSwapIndex = 
+  getIndex "\nWhich card do you want to swap? (Pass for not swapping) \n"  
 
 getRow :: IO Int
 getRow = do
