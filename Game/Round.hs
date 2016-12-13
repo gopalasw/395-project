@@ -19,15 +19,20 @@ roundSeq board = do
 roundStart :: Board -> Bool -> IO Board
 roundStart b@(Board p1 p2 _ _ _ _) bool = do
   b <- pure 
-     $ b { a = p1 { usedCards = (cardsOnBoard p1) ++ (usedCards p1),
+     $ b { a = p1 { usedCards = (filterPass $ cardsOnBoard p1) ++ (usedCards p1),
                     cardsOnBoard = []},
-           b = p2 { usedCards = (cardsOnBoard p2) ++ (usedCards p2),
+           b = p2 { usedCards = (filterPass $ cardsOnBoard p2) ++ (usedCards p2),
                cardsOnBoard = []},
            weather = (False, False, False),
            roundScore   = (0, 0),
            isATurn   = bool}
   putStrLn $ prettyPrintBoard b
   return b
+  where
+    filterPass :: [Card] -> [Card]
+    filterPass [] = []
+    filterPass (CPass:cs) = filterPass cs
+    filterPass (c:cs) = c : (filterPass cs)
 
 evaluateRound :: Board -> Board
 evaluateRound b@(Board p1 p2 _ (s1, s2) _ _)
