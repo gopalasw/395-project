@@ -4,6 +4,7 @@ import Cards.Cards
 import Game.Basics
 import Game.Init
 import Game.Round
+import Game.UserInput
 import Grammar.Grammar
 import Grammar.PrettyPrint
 import Grammar.Board
@@ -13,7 +14,7 @@ import Data.Time.Clock
 
 main = do
   t <- getCurrentTime
-  board <- pure $ brd t
+  board <- swapTwoCards (pure $ brd t) 
   toss <- randomRIO (1,2) :: IO Int
   if (toss == 1) then do
     board <- pure $ board { isATurn = True }
@@ -36,7 +37,37 @@ main = do
     brd t = initVersusAIBoard (seed t) (Northern, Northern) ((CLeader Relentless), (CLeader NorthCommander))
 
 
+swapTwoCards :: IO Board -> IO Board
+swapTwoCards board = do
+  board' <- board 
+  
+  putStrLn "Both player can swap up to 2 cards\n"
+  putStrLn "Player A swapping the first card\n"
+  putStrLn $ prettyPrintCards (cardsInHand (a board'))
+  card <- getCardHelper (CPass : (cardsInHand (a board'))) getSwapIndex
+  board'' <- pure $ swapTwoCardsHelper board' 0 card  
+  
+  putStrLn "Player A swappign the second card\n"
+  putStrLn $ prettyPrintCards (cardsInHand (a board''))
+  card' <- getCardHelper (CPass : (cardsInHand (a board''))) getSwapIndex
+  board''' <- pure $ swapTwoCardsHelper board'' 0 card'  
+  
+  putStrLn "Player B swapping the first card\n"
+  putStrLn $ prettyPrintCards (cardsInHand (b board'''))
+  card'' <- getCardHelper (CPass : (cardsInHand (b board'''))) getSwapIndex
+  board'''' <- pure $ swapTwoCardsHelper board''' 1 card''  
+  
+  putStrLn "Player B swapping the second card\n"
+  putStrLn $ prettyPrintCards (cardsInHand (b board''''))
+  card''' <- getCardHelper (CPass : (cardsInHand (b board''''))) getSwapIndex
+  return $ swapTwoCardsHelper board'''' 1 card'''  
 
+swapTwoCardsHelper :: Board -> Int -> Card -> Board
+swapTwoCardsHelper board i CPass = board
+swapTwoCardsHelper board i card 
+  | i == 0 = board{a = swapOneCard (a board) (randomSeed board) card} 
+  | i == 1 = board{b = swapOneCard (b board) (randomSeed board) card}
+  
 
 gameEnd :: Board -> String
 gameEnd board =
