@@ -2,29 +2,55 @@ module MinMax where
 import Data.List
 import Grammar.Grammar
 import Grammar.Board
+import Game.Turn
+import Game.Basics
+import Game.Init
+import Game.Round
+import Grammar.PrettyPrint
+import Grammar.Board
+import Control.Applicative
+import System.Random
+import Data.Time.Clock
 
 data Tree a = Node a [Tree a] deriving (Show)
 
-------------------------------------------------------------------------------
--- And uses this as his data structure for his game tree implementation in
--- section 5.  Read through section 5 and implement everything necessary to
--- implement the initial working `evaluate` function in the paper.  You may copy
--- code verbatim from the paper, although you will find that not all of it works
--- as advertised!  This is because Hughes wrote this paper with the predecesor
--- to Haskell, Miranda, in mind.  In general when dealing with any academic
--- work, we'll need to put in some effort to translate what they did into our
--- particular context.
---
--- As a final note, for any function that you add to your program, please give
--- it an appropriate type signature.  Hughes did not include types in his code
--- which helps with the presentation but hinders good Haskell style.
---
--- Demonstrate that your code works by creating five boards by hand and costing
--- them using the `evaluate` function.
---------------------------------------------------------------------------------
+-- Evaluation functions
 
--- Insert part 2 functions here
---
+moves :: Board -> [Board]
+moves board =
+  boardMoves board (cardsInHand curPlayer)
+  where curPlayer = if isATurn board then a board else b board
+
+boardMoves :: Board -> [Card] -> [Board]
+boardMoves board [] = []
+boardMoves board (card:xs) =
+  evaluateTurn (updateCurPlayer (updateWeather board card)
+                  (updatePlayedCard card)) : (boardMoves board xs)
+
+static :: Board -> Int
+static board =
+  if isATurn board then
+    case compareScore aScore bScore of
+      Lt -> -1
+      Eq -> 0
+      Gt -> 1
+  else 
+    case compareScore aScore bScore of
+      Lt -> 1
+      Eq -> 0
+      Gt -> -1
+  where
+    aScore = fst $ roundScore board
+    bScore = snd $ roundScore board
+
+compareScore :: Int -> Int -> Cmp
+compareScore a b =
+  if a > b then Gt
+    else
+      if a < b then Lt
+        else Eq
+
+data Cmp = Lt | Gt | Eq
 
 ------ Tree Functions -------
 maptree :: (a -> b) -> Tree a -> Tree b
@@ -46,19 +72,7 @@ reptree f a = Node a (map (reptree f) (f a))
 gametree :: Board -> Tree Board
 gametree p = reptree moves p
 ------------------------------------------------------------------------------
--- Part 3: Alpha-Beta Pruning
---
--- Finally, work through the rest of section 5 to add alpha-beta pruning to your
--- implementation.  You should implement the modified `evaluate` function that
--- uses alpha-beta pruning.  In addition to alpha-beta pruning, implement the
--- sort-and-take-top-n heuristic that follows.  You do not need to implement the
--- dynamic heuristic that ends the section.
--- Demonstrate that your code works by costing the five boards you created in
--- part 2 with your updated evaluation function.  You can use a version of
--- evaluate that uses both the alpha-beta pruning and sort-and-take-top-n
--- optimizations.
---------------------------------------------------------------------------------
--- Insert part 3 functions here
+-- Alpha-Beta Pruning
 
 maximizeAB :: Ord a => Tree a -> a 
 maximizeAB (Node n []) = n
@@ -143,4 +157,10 @@ evalfuncAB :: Ord a => Board -> (Tree a -> a)
 evalfuncAB board = if isATurn board then maximizeAB else minimizeAB
 
 evaluateAB :: Board -> Int
-evaluateAB board = (evalfuncAB board) . highfirst . maptree static . prune 8 . gametree $ board
+evaluateAB board = (evalfuncAB board) . highfirst . maptree static . prune 4 . gametree $ board
+
+example :: IO Board
+example = do 
+  t <- getCurrentTime
+  return $ initVersusAIBoard (seed t) (Northern, Northern) ((CLeader Relentless), (CLeader NorthCommander))
+  where seed t = mkStdGen $ floor $ utctDayTime t
