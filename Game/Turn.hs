@@ -15,32 +15,47 @@ import Game.UserInput
 
 turnLoop :: IO Board -> IO Board
 turnLoop board = do
-  b <- board
-  b <- playTurn $ pure b
+  b <- playTurn board
   b <- pure $ evaluateTurn b
   putStrLn $ "\n" ++  prettyPrintBoard b
   if not (roundOver b)
   then turnLoop (pure b)
   else putStrLn "\n----------Round over----------\n\n" >> return b
-  -- TODO Print who won the round.
+
 
 roundOver :: Board -> Bool
 roundOver (Board p1 p2 _ _ _ _) =
-  if (noCardsPlayed p1) || (noCardsPlayed p2) then False else (isPass p1) && (isPass p2)
-  where
-    noCardsPlayed :: Player -> Bool
-    noCardsPlayed p = [] == cardsOnBoard p
-    isPass :: Player -> Bool
-    isPass p = (head $ cardsOnBoard $ p) == CPass
+  if (noCardsPlayed p1) || (noCardsPlayed p2) then False else (lastIsPass p1) && (lastIsPass p2)
+
+
+otherPlayerPassed :: Board -> Bool
+otherPlayerPassed (Board p1 p2 _ _ pTurn _) = if (noCardsPlayed otherP) then False else lastIsPass otherP
+  where otherP = if pTurn then p2 else p1
+
+
+noCardsPlayed :: Player -> Bool
+noCardsPlayed p = [] == cardsOnBoard p
+
+
+lastIsPass :: Player -> Bool
+lastIsPass p = (head $ cardsOnBoard $ p) == CPass
+
 
 evaluateTurn :: Board -> Board
 evaluateTurn currentB@(Board p1 p2 w _ pTurn _) =
   cardsAbilityDamage $ currentB {
     roundScore = (totalDamage p1, totalDamage p2),
-    isATurn    = not pTurn
+    isATurn    = if otherPlayerPassed currentB then pTurn else not pTurn
   }
   where
     totalDamage p = getTotalDamage (cardsOnBoard p) w
+
+
+swapWhoseTurn :: Board -> Board
+swapWhoseTurn currentB@(Board _ _ _ _ pTurn _) =
+  currentB {
+    isATurn = not pTurn
+  }
 
 
 updateRandomSeed :: Board -> Board
