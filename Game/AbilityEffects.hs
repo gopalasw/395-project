@@ -71,7 +71,7 @@ evalAbility board (c@(CSpecial _ _ ability)) = evalAbility' ability
         (cardsOnBoard $ a board)
       else
         (cardsOnBoard $ b board)
-evalAbility board (CLeader leader) = evalLeader leader
+evalAbility board (CLeader leader) = usedLeaderBoard $ evalLeader leader
   where
     evalLeader SteelForged = return $ evalScorch board 3
     evalLeader NorthCommander =
@@ -102,6 +102,15 @@ evalAbility board (CLeader leader) = evalLeader leader
       else
         (cardsInHand $ a board)
 evalAbility board _ = return board
+
+usedLeaderBoard :: IO Board -> IO Board
+usedLeaderBoard ioboard = do
+  board <- ioboard
+  return $ updateCurPlayer board updateUsedLeader
+
+updateUsedLeader :: Player -> Player
+updateUsedLeader p =
+  p { leader = ((fst $ leader p), True) }
 
 peekOpp :: StdGen -> [Card] -> Int -> IO ()
 peekOpp seed cards num =
@@ -138,6 +147,8 @@ updateRow (c@(CSpecial name _ ability)) row p =
 updateDecoy :: Card -> Card -> Player -> Player
 updateDecoy (c@(CUnit _ row _ _)) decoy p =
   p { cardsOnBoard = (CSpecial "Decoy" row Decoy) : (delete decoy (delete c (cardsOnBoard p))), cardsInHand = c : delete decoy (cardsInHand p)}
+updateDecoy card decoy p =
+  p { cardsOnBoard = (delete decoy (cardsOnBoard p)) }
 
 updateUsed :: Card -> Player -> Player
 updateUsed c p =
