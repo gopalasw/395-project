@@ -81,9 +81,13 @@ playTurn board = do
       else
         (cardsInHand $ b board')
     curLeader board' =
-      if isATurn board' then (leader $ a board') else (leader $ b board')
+      if isATurn board' then
+        leaderHelper (leader $ a board')
+      else leaderHelper (leader $ b board')
+    leaderHelper (leaderCard, b) =
+      if b then [] else [leaderCard]
     isAI board' = if isATurn board' then (isComp $ a board') else isComp $ b board'
-    curHand board' = (getCurHand board') ++ [(curLeader board'), CPass]
+    curHand board' = (getCurHand board') ++ (curLeader board') ++ [CPass]
 
 
 getCardAI :: [Card] -> StdGen-> IO Card -- TODO: add a heuristic

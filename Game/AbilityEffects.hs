@@ -35,7 +35,7 @@ abilityDamage board cards card = ability card
 evalAbility :: Board -> Card -> IO Board
 evalAbility board (c@(CUnit _ _ ability _)) = evalAbility' ability
   where
-    evalAbility' Scorch = return $ evalScorch board 1
+    evalAbility' Scorch = return $ evalScorch board 0
     evalAbility' Spy = return $ evalSpy board c
     evalAbility' (Hero ability) = evalAbility' ability
     evalAbility' Medic =
@@ -65,13 +65,13 @@ evalAbility board (c@(CSpecial _ _ ability)) = evalAbility' ability
     evalAbility' Horn = do
       r <- getRow
       return $ updateCurPlayer board (updateRow c r)
-    evalAbility' Scorch = return $ evalScorch board 1
+    evalAbility' Scorch = return $ updateCurPlayer (evalScorch board 1) (removeCard c)
     cardsOnPlayersBoard =
       if isATurn board then
         (cardsOnBoard $ a board)
       else
         (cardsOnBoard $ b board)
-evalAbility board (CLeader leader) = evalLeader leader
+evalAbility board (CLeader leader) = usedLeaderBoard $ evalLeader leader
   where
     evalLeader SteelForged = return $ evalScorch board 3
     evalLeader NorthCommander =
@@ -102,6 +102,15 @@ evalAbility board (CLeader leader) = evalLeader leader
       else
         (cardsInHand $ a board)
 evalAbility board _ = return board
+
+usedLeaderBoard :: IO Board -> IO Board
+usedLeaderBoard ioboard = do
+  board <- ioboard
+  return $ updateCurPlayer board updateUsedLeader
+
+updateUsedLeader :: Player -> Player
+updateUsedLeader p =
+  p { leader = ((fst $ leader p), True) }
 
 peekOpp :: StdGen -> [Card] -> Int -> IO ()
 peekOpp seed cards num =
@@ -138,15 +147,25 @@ updateRow (c@(CSpecial name _ ability)) row p =
 updateDecoy :: Card -> Card -> Player -> Player
 updateDecoy (c@(CUnit _ row _ _)) decoy p =
   p { cardsOnBoard = (CSpecial "Decoy" row Decoy) : (delete decoy (delete c (cardsOnBoard p))), cardsInHand = c : delete decoy (cardsInHand p)}
+updateDecoy card decoy p =
+  p { cardsOnBoard = (delete decoy (cardsOnBoard p)) }
 
 updateUsed :: Card -> Player -> Player
 updateUsed c p =
   p { cardsInHand = c : (cardsInHand p), usedCards = delete c (usedCards p) }
 
 evalScorch :: Board -> Row -> Board
+evalScorch board 0 =
+  updateCurPlayer (updateOppPlayer board
+                                  (discardMaxCards (weather board) maxCard))
+                  (discardMaxCards (weather board) maxCard)
+
+  where
+    allCards = (cardsOnBoard $ a board) ++ (cardsOnBoard $ b board)
+    maxCard = (maxDamageCard (weather board) allCards)
 evalScorch board r =
   if ((getTotalDamage cardsInRow (weather board)) >= 10) then
-    updateOppPlayer board (discardMaxCard r)
+    updateOppPlayer board (discardMaxCard (weather board) r)
   else
     board
   where
@@ -185,22 +204,38 @@ drawFromUsed seed n p =
       (Just drew, left) -> (drew, left)
       (Nothing,   left) -> ([],   left)
 
-discardMaxCard :: Row -> Player -> Player
-discardMaxCard r p =
+discardMaxCard :: Weather -> Row -> Player -> Player
+discardMaxCard w 0 p =
+  if (allCards == []) then p
+  else p { cardsOnBoard = cards', usedCards = maxCard : (usedCards p) }
+  where
+    cards' = delete maxCard (cardsOnBoard p)
+    allCards = cardsOnBoard p
+    maxCard = maxDamageCard w allCards
+discardMaxCard w r p =
   if (cardsInRow == []) then p
   else p { cardsOnBoard = cards', usedCards = maxCard : (usedCards p) }
   where
     cards' = delete maxCard (cardsOnBoard p)
     cardsInRow = filter (cardInRow r) (cardsOnBoard p)
-    maxCard = maxDamageCard cardsInRow
+    maxCard = maxDamageCard w cardsInRow
 
+discardMaxCards :: Weather -> Card -> Player -> Player
+discardMaxCards weather max p =
+  if (allCards == []) then p
+  else p { cardsOnBoard = cards', usedCards = maxCards ++ (usedCards p) }
+  where
+    cards' = filter (\x -> not (x `elem` maxCards)) (cardsOnBoard p)
+    allCards = cardsOnBoard p
+    maxCards = filter (sameDamage max) allCards
+    sameDamage c1 c2 = (getDamage (Just weather) c1) == (getDamage (Just weather) c2)
 
-maxDamageCard :: [Card] -> Card
-maxDamageCard (card:rem) = maxDamage rem card
+maxDamageCard :: Weather -> [Card] -> Card
+maxDamageCard weather (card:rem) = maxDamage rem card
   where
     maxDamage [] max = max
     maxDamage (c:cs) max =
-      if (getDamage Nothing max < getDamage Nothing c) then
+      if (getDamage (Just weather) max < getDamage (Just weather) c) then
         maxDamage cs c
       else
         maxDamage cs max

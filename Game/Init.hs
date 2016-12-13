@@ -57,7 +57,7 @@ genPlayer (drew, left) c l =
     cardsOnBoard = [],
     usedCards    = [],
     lives        = [],
-    leader       = l,
+    leader       = (l, False),
     country      = c,
     isComp       = False }
 
@@ -70,7 +70,7 @@ genAI (drew, left) c l =
     cardsOnBoard = [],
     usedCards    = [],
     lives        = [],
-    leader       = l,
+    leader       = (l, False),
     country      = c,
     isComp       = True }
 
