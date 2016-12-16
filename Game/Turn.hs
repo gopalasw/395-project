@@ -69,7 +69,7 @@ playTurn :: IO Board -> IO Board
 playTurn board = do
   board' <- board
   if isAI board' then do
-    return $ swapWhoseTurn $ snd $ evaluateAB board'
+    return $  snd $ evaluateAB board'
   else do
     card <- getCardHelper (getCurHand board') getPlayIndex
     board' <- pure $ updateRandomSeed board'
@@ -151,16 +151,10 @@ boardMoves board (card:xs) =
 
 static :: Board -> Int
 static board =
-  if isATurn board then
-    case compareScore aScore bScore of
-      Lt -> -1
-      Eq -> 0
-      Gt -> 1
-  else
-    case compareScore aScore bScore of
-      Lt -> 1
-      Eq -> 0
-      Gt -> -1
+  case compareScore aScore bScore of
+    Lt -> 1
+    Eq -> 1
+    Gt -> -1
   where
     aScore = fst $ roundScore board
     bScore = snd $ roundScore board
@@ -188,20 +182,22 @@ gametree p = reptree moves p
 -- Alpha-Beta Pruning
 
 maximumPair :: Ord a => [(a, Board)] -> (a, Board)
-maximumPair nums = (val, board)
+maximumPair (p:nums) = maximumPair' p nums
   where
-    val = maximum (map fst nums)
-    board = case lookup val nums of
-      Just b -> b
-      Nothing -> emptyBoard
+    maximumPair' maxSoFar [] = maxSoFar
+    maximumPair' maxSoFar (x:xs) =
+      case (fst maxSoFar >= fst x) of
+        True -> maximumPair' maxSoFar xs
+        False -> maximumPair' x xs    
 
 minimumPair :: Ord a => [(a, Board)] -> (a, Board)
-minimumPair nums = (val, board)
+minimumPair (p:nums) = minimumPair' p nums
   where
-    val = minimum (map fst nums)
-    board = case lookup val nums of
-      Just b -> b
-      Nothing -> emptyBoard
+    minimumPair' minSoFar [] = minSoFar
+    minimumPair' minSoFar (x:xs) =
+      case (fst minSoFar <= fst x) of
+        True -> minimumPair' minSoFar xs
+        False -> minimumPair' x xs
 
 maximizeAB :: Ord a => Tree (a, Board) -> (a, Board)
 maximizeAB (Node n []) = n
@@ -220,52 +216,43 @@ minimize' (Node n []) = [n]
 minimize' (Node n l) = mapmax (map maximize' l)
 
 mapmin :: Ord a => [[(a, Board)]] -> [(a, Board)]
-mapmin (nums:rest) = minPair : (omitmin (fst minPair) rest)
+mapmin (nums:rest) = minPair : (omitmin minPair rest)
   where minPair = minimumPair nums
 
 mapmax :: Ord a => [[(a, Board)]] -> [(a, Board)]
-mapmax (nums:rest) = maxPair : (omitmax (fst maxPair) rest)
+mapmax (nums:rest) = maxPair : (omitmax maxPair rest)
   where maxPair = maximumPair nums
 
-omitmin :: Ord a => a -> [[(a, Board)]] -> [(a, Board)]
+omitmin :: Ord a => (a, Board) -> [[(a, Board)]] -> [(a, Board)]
 omitmin pot [] = []
 omitmin pot (nums:rest) =
   if minleq nums pot then
     omitmin pot rest
   else
-    (val, board) : (omitmin val rest)
-    where
-      val = minimum (map fst nums)
-      board = case lookup val nums of
-        Just b -> b
-        Nothing -> emptyBoard
+    minPair : (omitmin minPair rest)
+    where minPair = minimumPair nums
 
-omitmax :: Ord a => a -> [[(a, Board)]] -> [(a, Board)]
+omitmax :: Ord a => (a, Board) -> [[(a, Board)]] -> [(a, Board)]
 omitmax pot [] = []
 omitmax pot (nums:rest) =
   if maxgeq nums pot then
     omitmax pot rest
   else
-    (val, board) : (omitmax val rest)
-    where
-      val = maximum (map fst nums)
-      board = case lookup val nums of
-        Just b -> b
-        Nothing -> emptyBoard
+    maxPair : (omitmax maxPair rest)
+    where maxPair = maximumPair nums
 
-
-minleq :: Ord a => [(a, b)] -> a -> Bool
+minleq :: Ord a => [(a, b)] -> (a, Board) -> Bool
 minleq [] pot = False
 minleq (n:rest) pot =
-  if (fst n) <= pot then
+  if (fst n) <= (fst pot) then
     True
   else
     minleq rest pot
 
-maxgeq :: Ord a => [(a, b)] -> a -> Bool
+maxgeq :: Ord a => [(a, b)] -> (a, Board) -> Bool
 maxgeq [] pot = False
 maxgeq (n:rest) pot =
-  if (fst n) >= pot then
+  if (fst n) >= (fst pot) then
     True
   else
     maxgeq rest pot
@@ -296,10 +283,10 @@ prune 0 (Node a x) = Node a []
 prune n (Node a x) = Node a (map (prune (n - 1)) x)
 
 evalfuncAB :: Ord a => Board -> (Tree (a, Board) -> (a, Board))
-evalfuncAB board = if isATurn board then maximizeAB else minimizeAB
+evalfuncAB board = if not $ isATurn board then maximizeAB else minimizeAB
 
 evaluateAB :: Board -> (Int, Board)
-evaluateAB board = (evalfuncAB board) . highfirst . maptree static . prune 5 . gametree $ board
+evaluateAB board = (evalfuncAB board) . highfirst . maptree static . prune 1 . gametree $ board
 
 {-
 example :: IO Board
