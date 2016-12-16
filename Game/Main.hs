@@ -12,6 +12,7 @@ import Control.Applicative
 import System.Random
 import Data.Time.Clock
 
+-- initializes boards and players, and starts the game.
 main = do
   t <- getCurrentTime
   -- board <- swapTwoCards (pure $ brd t)
@@ -37,7 +38,7 @@ main = do
     seed t = mkStdGen $ floor $ utctDayTime t
     brd t = initVersusAIBoard (seed t) (Northern, Northern) ((CLeader Relentless), (CLeader NorthCommander))
 
-
+-- helper function for swapping cards
 swapTwoCards :: IO Board -> IO Board
 swapTwoCards board = do
   board' <- board
@@ -48,7 +49,7 @@ swapTwoCards board = do
   card <- getCardHelper (CPass : (cardsInHand (a board'))) getSwapIndex
   board'' <- pure $ swapTwoCardsHelper board' 0 card
 
-  putStrLn "Player A swappign the second card\n"
+  putStrLn "Player A swapping the second card\n"
   putStrLn $ prettyPrintCards (cardsInHand (a board''))
   card' <- getCardHelper (CPass : (cardsInHand (a board''))) getSwapIndex
   board''' <- pure $ swapTwoCardsHelper board'' 0 card'
@@ -69,7 +70,7 @@ swapTwoCardsHelper board i card
   | i == 0 = board{a = swapOneCard (a board) (randomSeed board) card}
   | i == 1 = board{b = swapOneCard (b board) (randomSeed board) card}
 
-
+-- displays winner/loser at end of game
 gameEnd :: Board -> String
 gameEnd board =
   case evalGame board of
@@ -78,7 +79,7 @@ gameEnd board =
     (False, False) -> "Game Over, no one wins in this game.\n"
     (True,  True)  -> error "Game error: two winners.\n"
 
-
+-- checks if game is over
 gameOver :: Board -> Bool
 gameOver (Board p1 p2 _ _ _ _) =
   (sameNGamesPlayed && (lostByP1 == 2 || lostByP2 == 2)) || --Either player lost two rounds
@@ -95,7 +96,7 @@ gameOver (Board p1 p2 _ _ _ _) =
       gamesPlayedP2    = length (lives p2)
       sameNGamesPlayed = gamesPlayedP1          == gamesPlayedP2
 
-
+-- evaluates the game to check who won
 evalGame :: Board -> (Bool, Bool)
 evalGame (Board p1 p2 _ _ _ _)
   | wonByP1 > wonByP2  = (True, False)

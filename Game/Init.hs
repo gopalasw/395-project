@@ -8,6 +8,7 @@ import Game.Basics
 import Data.List
 import System.Random
 
+-- initializes board with 2 human players
 initBoard :: StdGen -> (Country, Country) -> (Card, Card) -> Board
 initBoard gen (c1, c2) (l1, l2) = Board
   {
@@ -22,6 +23,7 @@ initBoard gen (c1, c2) (l1, l2) = Board
       (_, nGen) = next gen
       (_, boardGen) = next nGen
 
+-- initializes board with ai player and human player
 initVersusAIBoard :: StdGen -> (Country, Country) -> (Card, Card) -> Board
 initVersusAIBoard gen (c1, c2) (l1, l2) = Board
   {
@@ -36,9 +38,11 @@ initVersusAIBoard gen (c1, c2) (l1, l2) = Board
       (_, nGen) = next gen
       (_, boardGen) = next nGen
 
+-- adds leader to hand
 addL :: ([Card], [Card]) -> Card -> ([Card], [Card])
 addL (f, s) l = (l:f, s)
 
+-- gets cards from a specified country deck
 getCards :: StdGen -> Country -> ([Card], [Card])
 getCards seed c
   | c == Northern =
@@ -51,7 +55,7 @@ getCards seed c
       (Nothing,   left) -> ([],   []) --left)
   | otherwise       =  ([],[])
 
-
+-- generates player with given information
 genPlayer :: ([Card], [Card]) -> Country -> Card -> Player
 genPlayer (drew, left) c l =
   Player {
@@ -64,7 +68,7 @@ genPlayer (drew, left) c l =
     country      = c,
     isComp       = False }
 
-
+-- generates AI player
 genAI :: ([Card], [Card]) -> Country -> Card -> Player
 genAI (drew, left) c l =
   Player {
@@ -77,7 +81,7 @@ genAI (drew, left) c l =
     country      = c,
     isComp       = True }
 
-
+-- helper function for swapping cards
 swapOneCard :: Player -> StdGen -> Card -> Player
 swapOneCard p@(Player hand left _ _ _ _ country _) seed c
   | country == Northern  =

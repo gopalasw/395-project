@@ -14,6 +14,7 @@ type CardsDrawn  = [Card]
 type CardsLeft   = [Card]
 type CardsToDraw = Int
 
+-- draws n random cards
 drawCardsR :: StdGen -> CardsToDraw -> CardsInDeck -> (Maybe CardsDrawn, CardsLeft)
 drawCardsR _ _ [] = (Nothing, [])
 drawCardsR _ 0 l  = (Nothing, l)
@@ -25,8 +26,6 @@ drawCardsR g n l  = (Just res, filter (not . p) l)
     helper _ 0 _  = []
     helper x y ls  = c : (helper x (y-1) rst)
       where (c, rst) = drawCardR x ls
-
--- TODO: Test drawCardsR and drawCardR
 
 -- randomly draw a card from a deck
 drawCardR :: StdGen -> [Card] -> (Maybe Card, [Card])
@@ -43,17 +42,19 @@ getCard _ []     = Nothing
 getCard 0 (x:xs) = Just x
 getCard i (x:xs) = getCard (i - 1) xs
 
-
+-- calculate total damage, taking weather into account
 getTotalDamage :: [Card] -> Weather -> Int
 getTotalDamage ls weather =
    foldl (+) 0 (map (getDamage (Just weather)) ls)
 
+-- get the damage of a single card, taking weather into account
 getDamage :: (Maybe Weather) -> Card -> Int
 getDamage (Just weather) (CUnit _ r _ d) =
   if hasWeather r weather then 1 else d
 getDamage Nothing (CUnit _ _ _ d) = d
 getDamage _ _ = 0
 
+-- find if the row is affected by weather
 hasWeather :: Row -> Weather -> Bool
 hasWeather 1 (True, _, _) = True
 hasWeather 2 (_, True, _) = True

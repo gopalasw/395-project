@@ -5,12 +5,14 @@ import Cards.NeutralCards
 import Cards.NorthernCards
 import Cards.NilfgaardCards
 
+-- helper function to find row card is in
 cardInRow :: Row -> Card -> Bool
 cardInRow r (CUnit _ row _ _) = r == row
 cardInRow r (CSpecial _ row _) = r == row
 cardInRow r (CWeather _ row) = r == row
 cardInRow r _ = False
 
+-- all neutral cards
 neutralCards :: [Card]
 neutralCards = [geralt, cirilla, vesemir,
                 yennefer, triss, dandelion,
@@ -19,9 +21,11 @@ neutralCards = [geralt, cirilla, vesemir,
                 torch, torch, torch,
                 horn, horn, horn] ++ weatherCards
 
+-- all weather cards
 weatherCards :: [Card]
 weatherCards = concat $ map (take 3 . repeat) [frost, fog, rain, clear]
 
+-- northern deck
 northernCards :: [Card]
 northernCards = [vernon, john, esterad, philippa,
                  thaler, ves, siegfried, yarpen,
@@ -35,6 +39,7 @@ northernCards = [vernon, john, esterad, philippa,
                  siegeExpert, siegeExpert, siegeExpert,
                  blueStripes, blueStripes, blueStripes] ++ neutralCards
 
+-- nilfgaard deck
 nilfgaardCards :: [Card]
 nilfgaardCards = [letho, menno, morvran, tibor,
                   albrich, assire, cynthia,
