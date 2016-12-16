@@ -20,6 +20,7 @@ cardsAbilityDamage board = board { roundScore = ((fst $ roundScore board) + aDam
     aDamage = sum $ map (abilityDamage board aCards) aCards
     bDamage = sum $ map (abilityDamage board bCards) bCards
 
+-- calculates additional damage caused by a specific card
 abilityDamage :: Board -> [Card] -> Card -> Int
 abilityDamage board cards card = ability card
   where
@@ -32,6 +33,7 @@ abilityDamage board cards card = ability card
     ability _ = 0
 
 
+-- evaluates immediate effect of playing a card in that round
 evalAbility :: Board -> Card -> IO Board
 evalAbility board (c@(CUnit _ _ ability _)) = evalAbility' ability
   where
@@ -103,15 +105,18 @@ evalAbility board (CLeader leader) = usedLeaderBoard $ evalLeader leader
         (cardsInHand $ a board)
 evalAbility board _ = return board
 
+-- if the leader has been used, update board to reflect this
 usedLeaderBoard :: IO Board -> IO Board
 usedLeaderBoard ioboard = do
   board <- ioboard
   return $ updateCurPlayer board updateUsedLeader
 
+-- update flag to show leader been used
 updateUsedLeader :: Player -> Player
 updateUsedLeader p =
   p { leader = ((fst $ leader p), True) }
 
+-- peek num random cards from list 
 peekOpp :: StdGen -> [Card] -> Int -> IO ()
 peekOpp seed cards num =
   putStrLn $ show $ map (getName) randomCards
@@ -121,10 +126,12 @@ peekOpp seed cards num =
       (Just drew, left) -> drew
       (Nothing,   left) -> []
 
+-- take a card from the deck and add to board
 playFromDeck :: Card -> Player -> Player
 playFromDeck c p =
   p { cardsOnBoard = c : (cardsOnBoard p), cardsLeft = delete c (cardsLeft p) }
 
+-- update board with new weather
 playWeather :: Board -> Card -> Board
 playWeather board card =
   if elem fog deck then
@@ -138,22 +145,28 @@ playWeather board card =
       else
         (cardsLeft $ b board)
 
+-- updates the row of a card. used for cards that have user-determined rows
 updateRow :: Card -> Row -> Player -> Player
 updateRow (c@(CUnit name _ ability damage)) row p =
   p { cardsOnBoard = (CUnit name row ability damage) : (delete c (cardsOnBoard p)) }
 updateRow (c@(CSpecial name _ ability)) row p =
   p { cardsOnBoard = (CSpecial name row ability) : (delete c (cardsOnBoard p)) }
 
+-- if decoy is played properly, adds to board and readds card to hand.
+  -- otherwise, deletes decoy from board and places in hand
 updateDecoy :: Card -> Card -> Player -> Player
 updateDecoy (c@(CUnit _ row _ _)) decoy p =
   p { cardsOnBoard = (CSpecial "Decoy" row Decoy) : (delete decoy (delete c (cardsOnBoard p))), cardsInHand = c : delete decoy (cardsInHand p)}
 updateDecoy card decoy p =
   p { cardsOnBoard = (delete decoy (cardsOnBoard p)) }
 
+-- move a card from used to hand
 updateUsed :: Card -> Player -> Player
 updateUsed c p =
   p { cardsInHand = c : (cardsInHand p), usedCards = delete c (usedCards p) }
 
+-- evaluate scorch: if row is 0, searches through all rows.
+  -- otherwise, only applies on specified row
 evalScorch :: Board -> Row -> Board
 evalScorch board 0 =
   updateCurPlayer (updateOppPlayer board
@@ -174,26 +187,31 @@ evalScorch board r =
         (cardsOnBoard (b board))
       else (cardsOnBoard (a board))
 
-
+-- adds spy to opp players board and draws a card
 evalSpy :: Board -> Card -> Board
 evalSpy board spy = updateCurPlayer (updateOppPlayer board (playCard spy)) ((removeCard spy) . (drawFromUsed (randomSeed board) 2))
 
+-- adds card to board
 playCard :: Card -> Player -> Player
 playCard card p =
   p { cardsOnBoard = card : (cardsOnBoard p) }
 
+-- removes card from board
 removeCard :: Card -> Player -> Player
 removeCard card p =
   p { cardsOnBoard = delete card (cardsOnBoard p) }
 
+-- removes card from used pile
 removeCardFromUsed :: Card -> Player -> Player
 removeCardFromUsed card p =
   p { usedCards = delete card (usedCards p) }
 
+-- adds card to hand
 addToHand :: Card -> Player -> Player
 addToHand card p =
   p { cardsInHand = card : (cardsInHand p) }
 
+-- uses random generator to draw n random cards from used pile
 drawFromUsed :: StdGen -> Int -> Player -> Player
 drawFromUsed seed n p =
   p { cardsInHand = (fst cards) ++ (cardsInHand p),
@@ -204,6 +222,7 @@ drawFromUsed seed n p =
       (Just drew, left) -> (drew, left)
       (Nothing,   left) -> ([],   left)
 
+-- discards the max card in a row
 discardMaxCard :: Weather -> Row -> Player -> Player
 discardMaxCard w 0 p =
   if (allCards == []) then p
@@ -220,6 +239,7 @@ discardMaxCard w r p =
     cardsInRow = filter (cardInRow r) (cardsOnBoard p)
     maxCard = maxDamageCard w cardsInRow
 
+-- discards max cards from board (if same damage, can be multiple)
 discardMaxCards :: Weather -> Card -> Player -> Player
 discardMaxCards weather max p =
   if (allCards == []) then p
@@ -230,6 +250,7 @@ discardMaxCards weather max p =
     maxCards = filter (sameDamage max) allCards
     sameDamage c1 c2 = (getDamage (Just weather) c1) == (getDamage (Just weather) c2)
 
+-- finds the card with max damage in a list
 maxDamageCard :: Weather -> [Card] -> Card
 maxDamageCard weather (card:rem) = maxDamage rem card
   where
@@ -240,7 +261,7 @@ maxDamageCard weather (card:rem) = maxDamage rem card
       else
         maxDamage cs max
 
-
+-- draws all cards of same type from deck
 muster :: Card -> Player -> Player
 muster c p = p { cardsOnBoard = (cardsOnBoard p) ++ musterCards,
                     cardsLeft    = filter (c /=) (cardsLeft p),
@@ -248,6 +269,7 @@ muster c p = p { cardsOnBoard = (cardsOnBoard p) ++ musterCards,
   where musterCards = filter (c ==) ((cardsLeft p) ++ (cardsInHand p))
 
 
+-- finds if card is a unit
 isUnit :: Card -> Bool
 isUnit (CUnit _ _ _ _) = True
 isUnit _ = False

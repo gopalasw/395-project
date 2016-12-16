@@ -13,6 +13,7 @@ import Game.AbilityEffects
 import Cards.Cards
 import Game.UserInput
 
+-- sequence of actions in a turn
 turnLoop :: IO Board -> IO Board
 turnLoop board = do
   b <- playTurn board
@@ -22,25 +23,25 @@ turnLoop board = do
   then turnLoop (pure b)
   else putStrLn "\n----------Round over----------\n\n" >> return b
 
-
+-- check to see if round over
 roundOver :: Board -> Bool
 roundOver (Board p1 p2 _ _ _ _) =
   if (noCardsPlayed p1) || (noCardsPlayed p2) then False else (lastIsPass p1) && (lastIsPass p2)
 
-
+-- checks if other player has passed
 otherPlayerPassed :: Board -> Bool
 otherPlayerPassed (Board p1 p2 _ _ pTurn _) = if (noCardsPlayed otherP) then False else lastIsPass otherP
   where otherP = if pTurn then p2 else p1
 
-
+-- checks if there are no cards on board
 noCardsPlayed :: Player -> Bool
 noCardsPlayed p = [] == cardsOnBoard p
 
-
+-- checks if the last card played was a pass
 lastIsPass :: Player -> Bool
 lastIsPass p = (head $ cardsOnBoard $ p) == CPass
 
-
+-- updates turn score, updates whose turn it is
 evaluateTurn :: Board -> Board
 evaluateTurn currentB@(Board p1 p2 w _ pTurn _) =
   cardsAbilityDamage $ currentB {
@@ -50,7 +51,7 @@ evaluateTurn currentB@(Board p1 p2 w _ pTurn _) =
   where
     totalDamage p = getTotalDamage (cardsOnBoard p) w
 
-
+-- swaps whose turn it is
 swapWhoseTurn :: Board -> Board
 swapWhoseTurn currentB@(Board _ _ _ _ pTurn _) =
   currentB {
@@ -64,7 +65,7 @@ updateRandomSeed b = b { randomSeed = g }
     seed   = randomSeed b
     (i, g) = next seed
 
-
+-- goes through sequence of actions for playing a turn
 playTurn :: IO Board -> IO Board
 playTurn board = do
   board' <- board
@@ -89,7 +90,7 @@ playTurn board = do
       if b then [] else [leaderCard]
     isAI board' = if isATurn board' then (isComp $ a board') else isComp $ b board'
 
-
+-- for the AI to get a card
 getCardAI :: [Card] -> StdGen-> IO Card -- TODO: add a heuristic
 getCardAI d g = do
   pure $ head s
@@ -97,7 +98,7 @@ getCardAI d g = do
     (idx, _) = randomR (0, length d - 1) g
     (f, s)   = splitAt idx d
 
-
+-- updates the played card from hand to board
 updatePlayedCard :: Card -> Player -> Player
 updatePlayedCard CPass p =
   p { cardsOnBoard = CPass : (cardsOnBoard p),
@@ -287,12 +288,3 @@ evalfuncAB board = if not $ isATurn board then maximizeAB else minimizeAB
 
 evaluateAB :: Board -> (Int, Board)
 evaluateAB board = (evalfuncAB board) . highfirst . maptree static . prune 1 . gametree $ board
-
-{-
-example :: IO Board
-example = do
-  t <- getCurrentTime
-  return $ initVersusAIBoard (seed t) (Northern, Northern) ((CLeader Relentless), (CLeader NorthCommander))
-  where seed t = mkStdGen $ floor $ utctDayTime t
-
-  -}
