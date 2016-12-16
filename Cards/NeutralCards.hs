@@ -30,7 +30,7 @@ villen :: Card
 villen = CUnit "Villentretenmerth" 1 Scorch 7
 
 avallac :: Card
-avallac = CUnit "Avallac’h" 1 (Hero Spy) 0
+avallac = CUnit "Avallac'h" 1 (Hero Spy) 0
 
 decoy :: Card
 decoy = CSpecial "Decoy" 0 Decoy
