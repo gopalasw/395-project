@@ -11,8 +11,8 @@ import System.Random
 initBoard :: StdGen -> (Country, Country) -> (Card, Card) -> Board
 initBoard gen (c1, c2) (l1, l2) = Board
   {
-    a          = genPlayer (getCards gen c1) c1 l1,
-    b          = genPlayer (getCards nGen c2) c2 l2,
+    a          = genPlayer (addL (getCards gen c1) l1)  c1 l1,
+    b          = genPlayer (addL (getCards nGen c2) l2) c2 l2,
     weather    = (False, False, False),
     roundScore = (0, 0),
     isATurn    = True,
@@ -25,8 +25,8 @@ initBoard gen (c1, c2) (l1, l2) = Board
 initVersusAIBoard :: StdGen -> (Country, Country) -> (Card, Card) -> Board
 initVersusAIBoard gen (c1, c2) (l1, l2) = Board
   {
-    a          = genPlayer (getCards gen c1) c1 l1,
-    b          = genAI     (getCards nGen c2) c2 l2,
+    a          = genPlayer (addL (getCards gen c1) l1)  c1 l1,
+    b          = genAI     (addL (getCards nGen c2) l2) c2 l2,
     weather    = (False, False, False),
     roundScore = (0, 0),
     isATurn    = True,
@@ -36,12 +36,15 @@ initVersusAIBoard gen (c1, c2) (l1, l2) = Board
       (_, nGen) = next gen
       (_, boardGen) = next nGen
 
+addL :: ([Card], [Card]) -> Card -> ([Card], [Card])
+addL (f, s) l = (l:f, s)
+
 getCards :: StdGen -> Country -> ([Card], [Card])
 getCards seed c
   | c == Northern =
     case drawCardsR seed 10 northernCards of
       (Just drew, left) -> (drew, []) -- left)
-      (Nothing,   left) -> ([],   []) --left)
+      (Nothing,   left) -> ([],   []) -- left)
   | c == Nilfgaard =
     case drawCardsR seed 10 nilfgaardCards  of
       (Just drew, left) -> (drew, []) --left)

@@ -69,9 +69,9 @@ playTurn :: IO Board -> IO Board
 playTurn board = do
   board' <- board
   if isAI board' then do
-    return $ snd $ evaluateAB board'
+    return $ swapWhoseTurn $ snd $ evaluateAB board'
   else do
-    card <- getCardHelper (curHand board') getPlayIndex
+    card <- getCardHelper (getCurHand board') getPlayIndex
     board' <- pure $ updateRandomSeed board'
     evalAbility (updateCurPlayer (updateWeather board' card)
                                (updatePlayedCard card)) card
@@ -88,7 +88,6 @@ playTurn board = do
     leaderHelper (leaderCard, b) =
       if b then [] else [leaderCard]
     isAI board' = if isATurn board' then (isComp $ a board') else isComp $ b board'
-    curHand board' = (getCurHand board') ++ (curLeader board') ++ [CPass]
 
 
 getCardAI :: [Card] -> StdGen-> IO Card -- TODO: add a heuristic
@@ -157,7 +156,7 @@ static board =
       Lt -> -1
       Eq -> 0
       Gt -> 1
-  else 
+  else
     case compareScore aScore bScore of
       Lt -> 1
       Eq -> 0
@@ -208,7 +207,7 @@ maximizeAB :: Ord a => Tree (a, Board) -> (a, Board)
 maximizeAB (Node n []) = n
 maximizeAB t = maximumPair $ maximize' t
 
-minimizeAB :: Ord a => Tree (a, Board) -> (a, Board) 
+minimizeAB :: Ord a => Tree (a, Board) -> (a, Board)
 minimizeAB (Node n []) = n
 minimizeAB t = minimumPair $ minimize' t
 
@@ -221,7 +220,7 @@ minimize' (Node n []) = [n]
 minimize' (Node n l) = mapmax (map maximize' l)
 
 mapmin :: Ord a => [[(a, Board)]] -> [(a, Board)]
-mapmin (nums:rest) = minPair : (omitmin (fst minPair) rest) 
+mapmin (nums:rest) = minPair : (omitmin (fst minPair) rest)
   where minPair = minimumPair nums
 
 mapmax :: Ord a => [[(a, Board)]] -> [(a, Board)]
@@ -285,12 +284,12 @@ higher (Node n1 sub1) (Node n2 sub2) = (fst n1) > (fst n2)
 lower :: Ord a => Tree (a, b) -> Tree (a, b) -> Bool
 lower (Node n1 sub1) (Node n2 sub2) = (fst n1) <= (fst n2)
 
-quicksort :: (Ord a) => (Tree (a, b) -> Tree (a, b) -> Bool) -> [Tree (a, b)]-> [Tree (a, b)] 
-quicksort f [] = []  
-quicksort f (x:xs) =   
-    let smallerSorted = quicksort f [a | a <- xs, f a x]  
-        biggerSorted = quicksort f [a | a <- xs, (not (f a x))]  
-    in  smallerSorted ++ [x] ++ biggerSorted  
+quicksort :: (Ord a) => (Tree (a, b) -> Tree (a, b) -> Bool) -> [Tree (a, b)]-> [Tree (a, b)]
+quicksort f [] = []
+quicksort f (x:xs) =
+    let smallerSorted = quicksort f [a | a <- xs, f a x]
+        biggerSorted = quicksort f [a | a <- xs, (not (f a x))]
+    in  smallerSorted ++ [x] ++ biggerSorted
 
 prune :: Int -> Tree a -> Tree a
 prune 0 (Node a x) = Node a []
@@ -304,7 +303,7 @@ evaluateAB board = (evalfuncAB board) . highfirst . maptree static . prune 5 . g
 
 {-
 example :: IO Board
-example = do 
+example = do
   t <- getCurrentTime
   return $ initVersusAIBoard (seed t) (Northern, Northern) ((CLeader Relentless), (CLeader NorthCommander))
   where seed t = mkStdGen $ floor $ utctDayTime t
