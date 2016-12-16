@@ -11,18 +11,18 @@ import Cards.Cards
 roundSeq :: IO Board -> IO Board
 roundSeq board = do
   b <- board
-  b <- turnLoop $ roundStart b True -- TODO: Change this Bool to accurately represent who starts rounds
+  b <- turnLoop $ roundStart b True
   b <- pure $ evaluateRound b
   putStrLn $ prettyPrintStatus b
   return b
 
 roundStart :: Board -> Bool -> IO Board
 roundStart b@(Board p1 p2 _ _ _ _) bool = do
-  b <- pure 
+  b <- pure
      $ b { a = p1 { usedCards = (filterPass $ cardsOnBoard p1) ++ (usedCards p1),
-                    cardsOnBoard = []},
+                    cardsOnBoard = [], cardsInHand = (filterPass $ cardsInHand p1) ++ [CPass] },
            b = p2 { usedCards = (filterPass $ cardsOnBoard p2) ++ (usedCards p2),
-               cardsOnBoard = []},
+               cardsOnBoard = [], cardsInHand = (filterPass $ cardsInHand p2) ++ [CPass] },
            weather = (False, False, False),
            roundScore   = (0, 0),
            isATurn   = bool}
