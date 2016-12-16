@@ -8,6 +8,7 @@ import Game.Basics
 import Game.Turn
 import Cards.Cards
 
+-- sequence of actions for each round
 roundSeq :: IO Board -> IO Board
 roundSeq board = do
   b <- board
@@ -16,6 +17,7 @@ roundSeq board = do
   putStrLn $ prettyPrintStatus b
   return b
 
+-- starts the round with an empty board
 roundStart :: Board -> Bool -> IO Board
 roundStart b@(Board p1 p2 _ _ _ _) bool = do
   b <- pure
@@ -34,6 +36,7 @@ roundStart b@(Board p1 p2 _ _ _ _) bool = do
     filterPass (CPass:cs) = filterPass cs
     filterPass (c:cs) = c : (filterPass cs)
 
+-- evaluates round to see who won round
 evaluateRound :: Board -> Board
 evaluateRound b@(Board p1 p2 _ (s1, s2) _ _)
   | s1 < s2  = b { a = p1 { lives = 0 : (lives p1)},

@@ -5,7 +5,7 @@ import Data.List
 import Text.Read
 import Game.Basics
 
-
+-- helper to get cards, given an index
 getCardHelper :: [Card] -> ([Card] -> IO Int) -> IO Card
 getCardHelper cs f = do
   index <- f cs
@@ -13,6 +13,7 @@ getCardHelper cs f = do
     Just card -> return card
     Nothing   -> putStrLn "Invalid Input " >> getCardHelper cs f
 
+-- prompts for different situations
 getPlayIndex :: [Card] -> IO Int
 getPlayIndex = getIndex "\nWhich card do you want to play?"
 
@@ -28,6 +29,7 @@ getRow = do
   putStrLn "\nWhich row do you want to play it on?"
   (fmap (+1) getLineInt)
 
+-- helper for displaying card and respective index
 getIndex :: String -> [Card] -> IO Int
 getIndex s cs = do
   putStrLn $ show $ zip [1 .. (length cs)] (map (getName) cs)
@@ -42,6 +44,7 @@ getLineInt = do
     Just x  -> return (x-1) -- List is index from 1 to X
     Nothing -> putStrLn "Invalid input" >> getLineInt
 
+-- helper function to get name of a card
 getName :: Card -> String
 getName (CWeather n _)  = n
 getName (CUnit n _ _ _) = n

@@ -5,10 +5,12 @@ data Player = Player { cardsInHand :: [Card],
                        cardsLeft :: [Card],
                        cardsOnBoard :: [Card],
                        usedCards :: [Card],
-                       lives :: [Int],
-                       leader :: (Card, Bool),
+                       lives :: [Int], -- list of results for each round 
+                                       -- (1 - win, 0 - loss)
+                       leader :: (Card, Bool), -- a leader, and if it has been 
+                                               -- used this game
                        country :: Country,
-                       isComp :: Bool }
+                       isComp :: Bool } -- human player or computer player
                      deriving (Show)
 
 data Card =
@@ -31,9 +33,10 @@ data Leader =
   | Canceled -- If ability has been canceled (by WhiteFlame)
   deriving (Show, Eq)
 
+-- determines which deck player draws from
 data Country =
-    Northern -- Draw extra card from deck after you win a round
-  | Nilfgaard -- Win the game if it is a draw
+    Northern
+  | Nilfgaard 
   deriving (Show, Eq)
 
 data Ability =
@@ -50,7 +53,7 @@ data Ability =
   | None -- No ability
   deriving (Show, Eq)
 
-
+-- making types for readability
 type Name = String -- Name of cards/countries/leaders
 type Row = Int -- Rows that the card can be played on/affects
 type Damage = Int
