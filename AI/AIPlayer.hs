@@ -13,7 +13,6 @@ cardsToIA ls (c:cs) = cardsToIA updateLs cs
     index    = hashFun c
     updateLs = addByIndex ls index
 
-
 addByIndex :: [Int] -> Int -> [Int]
 addByIndex ls index = take index  ls ++ ( 
                       (head (drop index ls) + 1) :

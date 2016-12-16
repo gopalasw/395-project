@@ -14,7 +14,8 @@ import Data.Time.Clock
 
 main = do
   t <- getCurrentTime
-  board <- swapTwoCards (pure $ brd t) 
+  -- board <- swapTwoCards (pure $ brd t) 
+  board <- pure $ brd t
   toss <- randomRIO (1,2) :: IO Int
   if (toss == 1) then do
     board <- pure $ board { isATurn = True }
